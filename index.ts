@@ -102,7 +102,8 @@ function tr(lang: Lang, key: string, vars?: Record<string, string>): string {
   if (typeof val !== 'string') return key;
   if (!vars) return val;
   return Object.entries(vars).reduce((s, [k, v]) => s.replace(new RegExp(`{${k}}`, 'g'), String(v)), val);
-  
+}
+
 function fmt(n: number): string { return n.toLocaleString('ru-RU'); }
 
 // ─── State ───────────────────────────────────────────────────
@@ -520,3 +521,4 @@ async function startBot() {
 }
 
 startBot().catch(err => { console.error('Fatal:', err); process.exit(1); });
+        
