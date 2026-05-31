@@ -129,9 +129,10 @@ function fmt(n: number): string { return n.toLocaleString('ru-RU'); }
 
 // ─── Express ──────────────────────────────────────────────────
 const app = express();
-app.use(express.static(path.join(__dirname, 'public')));
+const publicPath = path.join(process.cwd(), 'public');
+app.use(express.static(publicPath));
 app.get('/', (_req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(publicPath, 'index.html'));
 });
 app.listen(PORT, () => console.log(`🌐 Port ${PORT}`));
 
