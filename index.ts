@@ -13,7 +13,7 @@ import {
 } from './database';
 import { isFlood } from './middlewares';
 
-// TypeScript uchun __dirname ni aniqlash
+// TypeScript uchun __dirname muammosini hal qilish
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -142,28 +142,19 @@ function fmt(n: number): string { return n.toLocaleString('ru-RU'); }
 const app = express();
 app.use(express.json());
 
-// Loyihaning asosiy papkasini xatosiz aniqlash
 const rootDir = path.resolve(process.cwd());
-
-// Papkalarni tizimga ulash
 app.use(express.static(path.join(rootDir, 'public')));
 app.use(express.static(rootDir));
 
-// Sayt ochilganda public/index.html faylini yuborish
 app.get('/', (req, res) => {
   res.sendFile(path.join(rootDir, 'public/index.html'), (err) => {
     if (err) {
-      // Agar topolmasa, zaxira sifatida bosh sahifadan qidiradi
       res.sendFile(path.join(rootDir, 'index.html'));
     }
   });
 });
 
 app.listen(PORT, () => console.log(`🌐 Port ${PORT}`));
-
-// ─── Botni ishga tushirish ────────────────────────────────────
-startBot().catch(err => { console.error('Fatal:', err); process.exit(1); });
-
 
 // ─── Bot ──────────────────────────────────────────────────────
 async function startBot() {
@@ -175,7 +166,6 @@ async function startBot() {
   await bot.startPolling();
   console.log('🤖 Bot started');
 
-  // ── Клавиатуры ──────────────────────────────────────────────
   const mainKb = (lang: Lang): TelegramBot.ReplyKeyboardMarkup => ({
     keyboard: [
       [{ text: tr(lang,'openShop'), web_app: { url: WEBAPP_URL } }],
@@ -200,7 +190,6 @@ async function startBot() {
     ]],
   });
 
-  // ── /start ──────────────────────────────────────────────────
   bot.onText(/\/start(?:\s+(.+))?/, async (msg, match) => {
     const uid = msg.from!.id;
     const refId = match?.[1] ? parseInt(match[1]) : undefined;
@@ -217,7 +206,6 @@ async function startBot() {
     await bot.sendMessage(uid, tr(lang,'chooseLang'), { reply_markup: langKb() });
   });
 
-  // ── /broadcast (только админ) ────────────────────────────────
   bot.onText(/\/broadcast (.+)/, async (msg, match) => {
     if (msg.from!.id !== ADMIN_ID) return;
     const text = match?.[1];
@@ -232,7 +220,6 @@ async function startBot() {
     await bot.sendMessage(ADMIN_ID, `✅ Рассылка завершена.\n\n✅ Доставлено: ${sent}\n❌ Ошибок: ${failed}`);
   });
 
-  // ── /stats (только админ) ────────────────────────────────────
   bot.onText(/\/stats/, async (msg) => {
     if (msg.from!.id !== ADMIN_ID) return;
     const users   = getUserCount();
@@ -243,7 +230,6 @@ async function startBot() {
     );
   });
 
-  // ── Callbacks ────────────────────────────────────────────────
   bot.on('callback_query', async (q) => {
     const uid  = q.from.id;
     const data = q.data ?? '';
@@ -353,7 +339,6 @@ async function startBot() {
     }
   });
 
-  // ── Сообщения ────────────────────────────────────────────────
   bot.on('message', async (msg) => {
     const uid   = msg.from!.id;
     const lang  = getLang(uid) as Lang;
@@ -509,4 +494,12 @@ async function startBot() {
         reply_markup: mainKb(lang), parse_mode: 'Markdown',
       });
     }
- startBot().catch(err => { console.error('Fatal:', err); process.exit(1); });
+  });
+
+  process.once('SIGINT',  () => { bot.stopPolling(); process.exit(0); });
+  process.once('SIGTERM', () => { bot.stopPolling(); process.exit(0); });
+}
+
+// Botni yakuniy ishga tushirish (Faqat bitta joyda!)
+startBot().catch(err => { console.error('Fatal:', err); process.exit(1); });
+      
