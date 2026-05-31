@@ -1,23 +1,17 @@
 import TelegramBot from 'node-telegram-bot-api';
 import express from 'express';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 dotenv.config();
 
 import {
   upsertUser, getUser, setLang, getLang, getBalance,
-  addBalance, subtractBalance, getAllUserIds, getUserCount,
+  subtractBalance, getAllUserIds, getUserCount,
   createOrder, getOrder, updateOrder, getUserOrders,
   getPendingOrders, processCashback, getReferralCount, getReferralEarnings,
 } from './database';
 import { isFlood } from './middlewares';
 
-// TypeScript uchun __dirname muammosini hal qilish
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// ─── Config ───────────────────────────────────────────────────
 const BOT_TOKEN   = process.env.BOT_TOKEN!;
 const ADMIN_ID    = 8150331577;
 const WEBAPP_URL  = process.env.WEBAPP_URL ?? '';
@@ -25,7 +19,6 @@ const PORT        = parseInt(process.env.PORT ?? '3000', 10);
 const CARD_NUMBER = process.env.UZCARD_NUMBER ?? '5614 6821 1076 2236';
 const CARD_HOLDER = process.env.UZCARD_HOLDER ?? 'I.Tojiboyev';
 
-// ─── i18n ─────────────────────────────────────────────────────
 type Lang = 'ru' | 'uz';
 
 const T: Record<Lang, any> = {
@@ -46,8 +39,8 @@ const T: Record<Lang, any> = {
     choosePayment: '💳 Выберите способ оплаты:\n\n📦 *{product}*\n💰 Сумма: *{price} сум*\n👤 Получатель: @{username}',
     payByCard:     '💳 Оплатить картой Uzcard',
     payByBalance:  '💰 Оплатить с баланса ({balance} сум)',
-    notEnoughBal:  '❌ Недостаточно средств на балансе.\n\n💰 Ваш баланс: {balance} сум\n💳 Нужно: {price} сум',
-    paidByBalance: '✅ Оплачено с баланса!\n\n📦 {product}\n👤 Получатель: @{username}\n🆔 Заказ: `{orderId}`\n\n⏳ Ожидайте выполнения.',
+    notEnoughBal:  '❌ Недостаточно средств.\n\n💰 Баланс: {balance} сум\n💳 Нужно: {price} сум',
+    paidByBalance: '✅ Оплачено с баланса!\n\n📦 {product}\n👤 @{username}\n🆔 Заказ: `{orderId}`\n\n⏳ Ожидайте выполнения.',
     payCard:       '💳 *Оплата через Uzcard*\n\nНомер карты: `{card}`\nВладелец: {holder}\n\n💰 Сумма: *{price} сум*\n📦 {product}\n👤 @{username}\n\n📸 После оплаты отправьте скриншот чека.',
     receiptOk:     '✅ Чек получен! Ожидайте подтверждения.\n\n🕐 До 30 минут.\n🆔 Заказ: `{orderId}`',
     sendPhoto:     '📸 Отправьте фото чека.',
@@ -109,10 +102,9 @@ function tr(lang: Lang, key: string, vars?: Record<string, string>): string {
   for (const k of keys) val = val?.[k];
   if (typeof val !== 'string') return key;
   if (!vars) return val;
-  return Object.entries(vars).reduce((s, [k, v]) => s.replace(`{${k}}`, v), val);
+  return Object.entries(vars).reduce((s, [k, v]) => s.replaceAll(`{${k}}`, v), val);
 }
 
-// ─── State (in-memory) ────────────────────────────────────────
 type Step = 'idle' | 'main_menu' | 'awaiting_username' | 'awaiting_payment' | 'awaiting_receipt';
 
 interface State {
@@ -127,33 +119,20 @@ interface State {
 const states = new Map<number, State>();
 function getState(uid: number): State { return states.get(uid) ?? { step: 'idle' }; }
 function setState(uid: number, s: Partial<State>): void { states.set(uid, { ...getState(uid), ...s }); }
-
 const adminReject = new Map<number, string>();
 
-// ─── Helpers ──────────────────────────────────────────────────
 let _oid = 1;
 function newOrderId(): string {
   return `ORD-${Date.now().toString(36).toUpperCase()}-${(_oid++).toString().padStart(3,'0')}`;
 }
-
 function fmt(n: number): string { return n.toLocaleString('ru-RU'); }
 
-// ─── Express (ENG TO'G'RI VARIANT) ─────────────────────────────
+// ─── Express ──────────────────────────────────────────────────
 const app = express();
-app.use(express.json());
-
-const rootDir = path.resolve(process.cwd());
-app.use(express.static(path.join(rootDir, 'public')));
-app.use(express.static(rootDir));
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(rootDir, 'public/index.html'), (err) => {
-    if (err) {
-      res.sendFile(path.join(rootDir, 'index.html'));
-    }
-  });
+app.use(express.static(path.join(__dirname, 'public')));
+app.get('/', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
 app.listen(PORT, () => console.log(`🌐 Port ${PORT}`));
 
 // ─── Bot ──────────────────────────────────────────────────────
@@ -193,14 +172,11 @@ async function startBot() {
   bot.onText(/\/start(?:\s+(.+))?/, async (msg, match) => {
     const uid = msg.from!.id;
     const refId = match?.[1] ? parseInt(match[1]) : undefined;
-
     upsertUser({
-      id: uid,
-      username: msg.from!.username,
+      id: uid, username: msg.from!.username,
       first_name: msg.from!.first_name,
       referred_by: refId !== uid ? refId : undefined,
     });
-
     setState(uid, { step: 'main_menu' });
     const lang = getLang(uid) as Lang;
     await bot.sendMessage(uid, tr(lang,'chooseLang'), { reply_markup: langKb() });
@@ -217,12 +193,12 @@ async function startBot() {
       catch { failed++; }
       await new Promise(r => setTimeout(r, 50));
     }
-    await bot.sendMessage(ADMIN_ID, `✅ Рассылка завершена.\n\n✅ Доставлено: ${sent}\n❌ Ошибок: ${failed}`);
+    await bot.sendMessage(ADMIN_ID, `✅ Рассылка завершена.\n✅ Доставлено: ${sent}\n❌ Ошибок: ${failed}`);
   });
 
   bot.onText(/\/stats/, async (msg) => {
     if (msg.from!.id !== ADMIN_ID) return;
-    const users   = getUserCount();
+    const users = getUserCount();
     const pending = getPendingOrders().length;
     await bot.sendMessage(ADMIN_ID,
       `📊 *Статистика*\n\n👥 Пользователей: *${users}*\n🔍 На проверке: *${pending}*`,
@@ -283,7 +259,8 @@ async function startBot() {
       const ok = subtractBalance(uid, state.price!);
       if (!ok) {
         await bot.sendMessage(uid, tr(lang,'notEnoughBal', {
-          balance: fmt(getBalance(uid)), price: fmt(state.price!),
+          balance: fmt(require('./database').getBalance(uid)),
+          price: fmt(state.price!),
         }));
         return;
       }
@@ -374,9 +351,9 @@ async function startBot() {
         const d = JSON.parse(msg.web_app_data.data);
         setState(uid, {
           step: 'awaiting_username',
-          productId: d.product_id || d.product_name,
+          productId: d.product_id,
           productName: d.product_name,
-          price: d.product_price || d.price,
+          price: d.price,
         });
         await bot.sendMessage(uid, tr(lang,'enterUsername'), { reply_markup: { remove_keyboard: true } });
       } catch {
@@ -392,7 +369,7 @@ async function startBot() {
         return;
       }
       setState(uid, { step: 'awaiting_payment', targetUsername: cleaned });
-      const balance = getBalance(uid);
+      const balance = require('./database').getBalance(uid);
       await bot.sendMessage(uid,
         tr(lang,'choosePayment', {
           product: state.productName!, price: fmt(state.price!), username: cleaned,
@@ -434,10 +411,7 @@ async function startBot() {
           `🛒 *Новый заказ!*\n\n🆔 \`${orderId}\`\n📦 ${state.productName}\n💰 ${fmt(state.price!)} сум\n👤 @${state.targetUsername}\n🧑 ${msg.from!.first_name}` +
           (user?.username ? ` (@${user.username})` : '') + `\n🪪 ID: ${uid}`,
         parse_mode: 'Markdown',
-        reply_markup: { inline_keyboard: [
-          [{ text: '✅ Выполнено', callback_data: `approve:${orderId}` }],
-          [{ text: '❌ Отклонить', callback_data: `reject:${orderId}` }],
-        ]},
+        reply_markup: adminKb(orderId),
       });
       return;
     }
@@ -500,6 +474,4 @@ async function startBot() {
   process.once('SIGTERM', () => { bot.stopPolling(); process.exit(0); });
 }
 
-// Botni yakuniy ishga tushirish (Faqat bitta joyda!)
 startBot().catch(err => { console.error('Fatal:', err); process.exit(1); });
-      
