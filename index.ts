@@ -50,7 +50,7 @@ const T: Record<Lang, any> = {
     rejected:      '❌ *Заказ отклонён.*\n\n📦 {product}\n💬 Причина: {reason}',
     noOrders:      '📭 Заказов пока нет.',
     ordersTitle:   '📋 *Ваши заказы:*\n\n',
-    supportText:   '💬 Поддержка: @YOUR_SUPPORT\n⏰ 9:00–22:00 (UTC+5)',
+    supportText:   '💬 Поддержка: @Tadjibaev_i\n⏰ 9:00–22:00 (UTC+5)',
     flood:         '⏳ Не так быстро!',
     status: {
       awaiting_receipt: '⏳ Ожидает чек',
