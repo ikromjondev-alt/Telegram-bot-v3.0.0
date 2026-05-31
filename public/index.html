@@ -168,7 +168,6 @@ body::after {
     <div class="tab stars" id="tabStars" onclick="switchTab('stars')">⭐ STARS</div>
   </div>
 
-  <!-- PREMIUM -->
   <div class="panel active" id="panelPremium">
     <div class="panel-title premium">Telegram Premium</div>
 
@@ -217,7 +216,6 @@ body::after {
     </div>
   </div>
 
-  <!-- STARS -->
   <div class="panel" id="panelStars">
     <div class="panel-title stars">Telegram Stars</div>
 
@@ -313,7 +311,6 @@ body::after {
   </div>
 </div>
 
-<!-- PAYMENT SHEET -->
 <div class="overlay" id="overlay">
   <div class="sheet" id="sheet">
     <div class="sheet-handle"></div>
@@ -351,5 +348,12 @@ body::after {
 <div class="toast" id="toast"></div>
 
 <script>
+// Telegram WebApp yuklash
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.expand();
+  tg.ready();
+}
+
 const PRODUCTS = {
-  p_1m:    { name:'PREMIUM 1 OY',    icon:'💎', price:'40 000',     raw:40000,     type:'p
+  p_1m:    { name:'PREMIUM 1 OY',    icon:'?
