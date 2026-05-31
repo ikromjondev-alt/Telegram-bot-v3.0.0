@@ -99,8 +99,7 @@ body::after {
 .card-badge { font-size:9px; letter-spacing:1px; padding:2px 7px; border-radius:20px; margin-top:4px; display:inline-block; font-weight:700; text-transform:uppercase; }
 .card.premium .card-badge { background:rgba(0,245,255,0.15); color:var(--cyan); border:1px solid rgba(0,245,255,0.3); }
 .card.stars   .card-badge { background:rgba(255,225,53,0.15); color:var(--yellow-dim); border:1px solid rgba(255,225,53,0.3); }
-
-.price-btn { padding:9px 14px; border-radius:10px; border:none; font-family:'Orbitron',sans-serif; font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap; transition:all 0.2s; letter-spacing:0.5px; flex-shrink:0; }
+.price-btn { padding:9px 14px; border-radius:10px; border:none; font-family:'Orbitron',sans-serif; font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap; transition:all 0.2s; letter-spacing:0.5px; flex-shrink:0; pointer-events:none; }
 .card.premium .price-btn { background:linear-gradient(135deg,var(--purple),var(--purple-dim)); color:#fff; box-shadow:0 0 15px rgba(180,79,255,0.4); }
 .card.stars   .price-btn { background:linear-gradient(135deg,var(--yellow),var(--yellow-dim)); color:#111; box-shadow:0 0 15px rgba(255,225,53,0.4); }
 .price-btn:active { transform:scale(0.92); }
