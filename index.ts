@@ -17,8 +17,8 @@ const BOT_TOKEN   = process.env.BOT_TOKEN!;
 const ADMIN_ID    = 8150331577;
 const WEBAPP_URL  = process.env.WEBAPP_URL ?? '';
 const PORT        = parseInt(process.env.PORT ?? '3000', 10);
-const CARD_NUMBER = process.env.UZCARD_NUMBER ?? '8600 0000 0000 0000';
-const CARD_HOLDER = process.env.UZCARD_HOLDER ?? 'Имя Держателя';
+const CARD_NUMBER = process.env.UZCARD_NUMBER ?? '5614 6821 1076 2236';
+const CARD_HOLDER = process.env.UZCARD_HOLDER ?? 'I.Tojiboyev';
 
 // ─── i18n ─────────────────────────────────────────────────────
 type Lang = 'ru' | 'uz';
