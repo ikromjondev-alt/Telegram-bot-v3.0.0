@@ -1,6 +1,7 @@
 import TelegramBot from 'node-telegram-bot-api';
 import express from 'express';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -11,6 +12,10 @@ import {
   getPendingOrders, processCashback, getReferralCount, getReferralEarnings,
 } from './database';
 import { isFlood } from './middlewares';
+
+// TypeScript uchun __dirname ni aniqlash
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ─── Config ───────────────────────────────────────────────────
 const BOT_TOKEN   = process.env.BOT_TOKEN!;
@@ -63,7 +68,7 @@ const T: Record<Lang, any> = {
   uz: {
     chooseLang:    '🌐 Tilni tanlang:',
     langChosen:    '✅ Til: O\'zbek',
-    welcome:       '👋 Xush bekibsiz, {name}!\n\nTelegram Premium va Stars sotib oling — tez va ishonchli.',
+    welcome:       '👋 Xush kelibsiz, {name}!\n\nTelegram Premium va Stars sotib oling — tez va ishonchli.',
     openShop:      '🛍 Do\'konni ochish',
     profile:       '👤 Profil',
     referral:      '👥 Referal dasturi',
@@ -80,7 +85,7 @@ const T: Record<Lang, any> = {
     notEnoughBal:  '❌ Balansda mablag\' yetarli emas.\n\n💰 Balans: {balance} so\'m\n💳 Kerak: {price} so\'m',
     paidByBalance: '✅ Balansdan to\'landi!\n\n📦 {product}\n👤 @{username}\n🆔 Buyurtma: `{orderId}`\n\n⏳ Bajarilishini kuting.',
     payCard:       '💳 *Uzcard orqali to\'lov*\n\nKarta raqami: `{card}`\nEgasi: {holder}\n\n💰 Summa: *{price} so\'m*\n📦 {product}\n👤 @{username}\n\n📸 To\'lovdan so\'ng chek skrinshotini yuboring.',
-    receiptOk:     '✅ Chek qabul edi!\n\n🕐 30 daqiqagacha.\n🆔 Buyurtma: `{orderId}`',
+    receiptOk:     '✅ Chek qabul bo\'ldi!\n\n🕐 30 daqiqagacha.\n🆔 Buyurtma: `{orderId}`',
     sendPhoto:     '📸 Chek rasmini yuboring.',
     approved:      '🎉 *Buyurtma bajarildi!*\n\n📦 {product}\n👤 @{username}\n\nRahmat!',
     rejected:      '❌ *Buyurtma rad etildi.*\n\n📦 {product}\n💬 Sabab: {reason}',
@@ -133,19 +138,25 @@ function newOrderId(): string {
 
 function fmt(n: number): string { return n.toLocaleString('ru-RU'); }
 
-// ─── Express (TO'G'RILANGAN QISM) ──────────────────────────────
+// ─── Express ──────────────────────────────────────────────────
 const app = express();
 app.use(express.json());
 
-// HTML va static fayllarni asosiy hamda dist papkalaridan qidirishni yoqamiz
+// Public va uning atrofidagi papkalardan fayllarni ulash
+app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, '../../public')));
 app.use(express.static(path.join(__dirname, '../')));
 app.use(express.static(path.join(__dirname, '../../')));
 
-// Asosiy url ochilganda index.html faylini ko'rsatamiz
+// Sayt ochilganda public ichidagi index.html faylini topib yuborish
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../index.html'), (err) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'), (err) => {
     if (err) {
-      res.sendFile(path.join(__dirname, '../../index.html'));
+      res.sendFile(path.join(__dirname, '../../public/index.html'), (err2) => {
+        if (err2) {
+          res.sendFile(path.join(__dirname, '../index.html'));
+        }
+      });
     }
   });
 });
@@ -376,9 +387,9 @@ async function startBot() {
         const d = JSON.parse(msg.web_app_data.data);
         setState(uid, {
           step: 'awaiting_username',
-          productId: d.product_id || d.product_name, // fallback agar id bo'lmasa
+          productId: d.product_id || d.product_name,
           productName: d.product_name,
-          price: d.product_price || d.price, // boyagi HTML kodga moslandi
+          price: d.product_price || d.price,
         });
         await bot.sendMessage(uid, tr(lang,'enterUsername'), { reply_markup: { remove_keyboard: true } });
       } catch {
@@ -496,11 +507,4 @@ async function startBot() {
         reply_markup: mainKb(lang), parse_mode: 'Markdown',
       });
     }
-  });
-
-  process.once('SIGINT',  () => { bot.stopPolling(); process.exit(0); });
-  process.once('SIGTERM', () => { bot.stopPolling(); process.exit(0); });
-}
-
-startBot().catch(err => { console.error('Fatal:', err); process.exit(1); });
-    
+ startBot().catch(err => { console.error('Fatal:', err); process.exit(1); });
