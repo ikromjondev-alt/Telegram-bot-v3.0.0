@@ -138,30 +138,32 @@ function newOrderId(): string {
 
 function fmt(n: number): string { return n.toLocaleString('ru-RU'); }
 
-// ─── Express ──────────────────────────────────────────────────
+// ─── Express (ENG TO'G'RI VARIANT) ─────────────────────────────
 const app = express();
 app.use(express.json());
 
-// Public va uning atrofidagi papkalardan fayllarni ulash
-app.use(express.static(path.join(__dirname, '../public')));
-app.use(express.static(path.join(__dirname, '../../public')));
-app.use(express.static(path.join(__dirname, '../')));
-app.use(express.static(path.join(__dirname, '../../')));
+// Loyihaning asosiy papkasini xatosiz aniqlash
+const rootDir = path.resolve(process.cwd());
 
-// Sayt ochilganda public ichidagi index.html faylini topib yuborish
+// Papkalarni tizimga ulash
+app.use(express.static(path.join(rootDir, 'public')));
+app.use(express.static(rootDir));
+
+// Sayt ochilganda public/index.html faylini yuborish
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'), (err) => {
+  res.sendFile(path.join(rootDir, 'public/index.html'), (err) => {
     if (err) {
-      res.sendFile(path.join(__dirname, '../../public/index.html'), (err2) => {
-        if (err2) {
-          res.sendFile(path.join(__dirname, '../index.html'));
-        }
-      });
+      // Agar topolmasa, zaxira sifatida bosh sahifadan qidiradi
+      res.sendFile(path.join(rootDir, 'index.html'));
     }
   });
 });
 
 app.listen(PORT, () => console.log(`🌐 Port ${PORT}`));
+
+// ─── Botni ishga tushirish ────────────────────────────────────
+startBot().catch(err => { console.error('Fatal:', err); process.exit(1); });
+
 
 // ─── Bot ──────────────────────────────────────────────────────
 async function startBot() {
