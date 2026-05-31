@@ -348,7 +348,7 @@ body::after {
 <div class="toast" id="toast"></div>
 
 <script>
-// Telegram WebApp yuklash
+// Telegram WebApp obyektini yuklash
 const tg = window.Telegram?.WebApp;
 if (tg) {
   tg.expand();
@@ -356,4 +356,178 @@ if (tg) {
 }
 
 const PRODUCTS = {
-  p_1m:    { name:'PREMIUM 1 OY',    icon:'?
+  p_1m:    { name:'PREMIUM 1 OY',    icon:'💎', price:'40 000',     raw:40000,   type:'premium' },
+  p_3m:    { name:'PREMIUM 3 OY',    icon:'💜', price:'180 000',    raw:180000,  type:'premium' },
+  p_6m:    { name:'PREMIUM 6 OY',    icon:'👑', price:'225 000',    raw:225000,  type:'premium' },
+  p_12m:   { name:'PREMIUM 12 OY',   icon:'🚀', price:'321 000',    raw:321000,  type:'premium' },
+  
+  s_50:    { name:'50 STARS',    icon:'⭐', price:'13 000',     raw:13000,   type:'stars' },
+  s_100:   { name:'100 STARS',   icon:'⭐', price:'24 000',     raw:24000,   type:'stars' },
+  s_150:   { name:'150 STARS',   icon:'⭐', price:'36 000',     raw:36000,   type:'stars' },
+  s_250:   { name:'250 STARS',   icon:'🌟', price:'60 000',     raw:60000,   type:'stars' },
+  s_350:   { name:'350 STARS',   icon:'🌟', price:'84 000',     raw:84000,   type:'stars' },
+  s_500:   { name:'500 STARS',   icon:'💫', price:'120 000',    raw:120000,  type:'stars' },
+  s_750:   { name:'750 STARS',   icon:'💫', price:'180 000',    raw:180000,  type:'stars' },
+  s_1000:  { name:'1 000 STARS',  icon:'🔥', price:'240 000',    raw:240000,  type:'stars' },
+  s_1500:  { name:'1 500 STARS',  icon:'🔥', price:'360 000',    raw:360000,  type:'stars' },
+  s_2500:  { name:'2 500 STARS',  icon:'💥', price:'600 000',    raw:600000,  type:'stars' },
+  s_5000:  { name:'5 000 STARS',  icon:'🚀', price:'1 200 000',  raw:1200000, type:'stars' },
+  s_10000: { name:'10 000 STARS', icon:'🚀', price:'2 400 000',  raw:2400000, type:'stars' },
+  s_25000: { name:'25 000 STARS', icon:'💎', price:'6 000 000',  raw:6000000, type:'stars' },
+  s_35000: { name:'35 000 STARS', icon:'💎', price:'8 400 000',  raw:8400000, type:'stars' },
+  s_50000: { name:'50 000 STARS', icon:'👑', price:'12 000 000', raw:12000000,type:'stars' }
+};
+
+let currentId = null;
+
+function switchTab(type) {
+  const slider = document.getElementById('tabSlider');
+  const tPrem = document.getElementById('tabPremium');
+  const tStar = document.getElementById('tabStars');
+  const pPrem = document.getElementById('panelPremium');
+  const pStar = document.getElementById('panelStars');
+
+  if(type === 'premium') {
+    slider.className = 'tab-slider premium';
+    tPrem.classList.add('active');
+    tStar.classList.remove('active');
+    pPrem.classList.add('active');
+    pStar.classList.remove('active');
+  } else {
+    slider.className = 'tab-slider stars';
+    tStar.classList.add('active');
+    tPrem.classList.remove('active');
+    pStar.classList.add('active');
+    pPrem.classList.remove('active');
+  }
+}
+
+function openPayment(id) {
+  currentId = id;
+  const p = PRODUCTS[id];
+  if(!p) return;
+
+  document.getElementById('sheetIcon').innerText = p.icon;
+  
+  const sName = document.getElementById('sheetName');
+  sName.innerText = p.name;
+  
+  const aVal = document.getElementById('amountVal');
+  aVal.innerText = p.price + ' сум';
+
+  const o = document.getElementById('overlay');
+  o.classList.add('open');
+
+  const thumb = document.getElementById('swipeThumb');
+  const track = document.getElementById('swipeTrack');
+  const copyCardBtn = document.getElementById('copyCardBtn');
+  const copyAmountBtn = document.getElementById('copyAmountBtn');
+
+  thumb.style.transform = 'translateX(0px)';
+  track.style.width = '0%';
+
+  if(p.type === 'premium') {
+    sName.className = 'sheet-name premium';
+    aVal.className = 'amount-val premium';
+    track.className = 'swipe-track premium';
+    thumb.className = 'swipe-thumb premium';
+    copyCardBtn.className = 'copy-btn cyan';
+    copyAmountBtn.className = 'copy-btn cyan';
+  } else {
+    sName.className = 'sheet-name stars';
+    aVal.className = 'amount-val stars';
+    track.className = 'swipe-track stars';
+    thumb.className = 'swipe-thumb stars';
+    copyCardBtn.className = 'copy-btn yellow';
+    copyAmountBtn.className = 'copy-btn yellow';
+  }
+  initSwipe();
+}
+
+function closePayment() {
+  document.getElementById('overlay').classList.remove('open');
+  currentId = null;
+}
+
+function showToast(txt) {
+  const t = document.getElementById('toast');
+  t.innerText = txt;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function copyCard() {
+  const num = document.getElementById('cardNum').innerText;
+  navigator.clipboard.writeText(num.replace(/\s/g, ''));
+  showToast('Karta raqami nusxalandi!');
+}
+
+function copyAmount() {
+  const p = PRODUCTS[currentId];
+  if(p) {
+    navigator.clipboard.writeText(p.raw);
+    showToast('Summa nusxalandi!');
+  }
+}
+
+function initSwipe() {
+  const wrap = document.getElementById('swipeWrap');
+  const thumb = document.getElementById('swipeThumb');
+  const track = document.getElementById('swipeTrack');
+  
+  let isDragging = false;
+  let startX = 0;
+  let maxW = wrap.clientWidth - thumb.clientWidth - 8;
+
+  function onStart(e) {
+    isDragging = true;
+    startX = (e.touches ? e.touches[0].clientX : e.clientX) - (parseFloat(thumb.style.transform.replace('translateX(','') || 0));
+  }
+
+  function onMove(e) {
+    if(!isDragging) return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    let x = clientX - startX;
+    if(x < 0) x = 0;
+    if(x > maxW) x = maxW;
+    
+    thumb.style.transform = `translateX(${x}px)`;
+    track.style.width = `${(x / maxW) * 100}%`;
+
+    if(x >= maxW - 2) {
+      isDragging = false;
+      if (tg) {
+        const selected = PRODUCTS[currentId];
+        tg.sendData(JSON.stringify({
+          product_id: currentId,
+          product_name: selected.name,
+          price: selected.raw
+        }));
+      } else {
+        showToast('Xarid tasdiqlandi!');
+      }
+      setTimeout(closePayment, 400);
+    }
+  }
+
+  function onEnd() {
+    if(!isDragging) return;
+    isDragging = false;
+    const curX = parseFloat(thumb.style.transform.replace('translateX(','') || 0);
+    if(curX < maxW - 2) {
+      thumb.style.transform = 'translateX(0px)';
+      track.style.width = '0%';
+    }
+  }
+
+  thumb.onmousedown = onStart;
+  window.onmousemove = onMove;
+  window.onmouseup = onEnd;
+
+  thumb.ontouchstart = onStart;
+  window.ontouchmove = onMove;
+  window.ontouchend = onEnd;
+}
+</script>
+</body>
+</html>
