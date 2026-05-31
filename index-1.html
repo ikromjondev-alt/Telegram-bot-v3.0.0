@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Telegram Softs</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --cyan: #00f5ff;
+  --cyan-dim: rgba(0,245,255,0.1);
+  --cyan-glow: rgba(0,245,255,0.3);
+  --purple: #b44fff;
+  --purple-dim: rgba(180,79,255,0.1);
+  --gold: #ffd700;
+  --gold-dim: rgba(255,215,0,0.1);
+  --gold-glow: rgba(255,215,0,0.3);
+  --green: #00ff88;
+  --bg: #07090f;
+  --surface: #0d1117;
+  --surface2: #161b22;
+  --surface3: #1c2128;
+  --border: rgba(255,255,255,0.06);
+  --border-cyan: rgba(0,245,255,0.2);
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+  --text-muted: #484f58;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; overflow-x:hidden; }
+
+/* Grid background */
+body::before {
+  content:''; position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(0,245,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,245,255,0.02) 1px, transparent 1px);
+  background-size:50px 50px;
+  pointer-events:none; z-index:0;
+}
+
+/* Glow orbs */
+body::after {
+  content:''; position:fixed; inset:0;
+  background:
+    radial-gradient(ellipse at 80% 0%, rgba(180,79,255,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 0% 100%, rgba(0,245,255,0.06) 0%, transparent 50%);
+  pointer-events:none; z-index:0;
+}
+
+#app { position:relative; z-index:1; padding-bottom:32px; }
+
+/* ─── HEADER ─────────────────────────────────────── */
+.header {
+  padding:20px 20px 0;
+  display:flex; align-items:center; justify-content:space-between;
+}
+
+.brand {
+  display:flex; align-items:center; gap:10px;
+}
+
+.brand-icon {
+  width:40px; height:40px; border-radius:12px;
+  background:linear-gradient(135deg, rgba(0,245,255,0.2), rgba(180,79,255,0.2));
+  border:1px solid var(--border-cyan);
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px;
+  box-shadow:0 0 20px rgba(0,245,255,0.1);
+}
+
+.brand-text { display:flex; flex-direction:column; }
+.brand-name { font-size:14px; font-weight:800; letter-spacing:0.5px; color:var(--text); }
+.brand-sub { font-size:10px; color:var(--text-muted); letter-spacing:1px; text-transform:uppercase; margin-top:1px; }
+
+.lang-badge {
+  font-size:11px; font-weight:600; padding:5px 10px; border-radius:20px;
+  background:var(--surface2); border:1px solid var(--border);
+  color:var(--text-dim); cursor:pointer; letter-spacing:0.5px;
+}
+
+/* ─── TABS ───────────────────────────────────────── */
+.tabs {
+  display:flex; margin:18px 20px 0;
+  background:var(--surface); border-radius:14px;
+  padding:4px; border:1px solid var(--border); gap:4px;
+  position:relative;
+}
+
+.tab {
+  flex:1; padding:11px 8px; text-align:center;
+  font-size:12px; font-weight:700; letter-spacing:0.5px;
+  border-radius:10px; cursor:pointer;
+  transition:all 0.25s; user-select:none; position:relative; z-index:1;
+  color:var(--text-dim);
+}
+
+.tab.active.premium {
+  background:linear-gradient(135deg, rgba(0,245,255,0.15), rgba(180,79,255,0.1));
+  border:1px solid rgba(0,245,255,0.25);
+  color:var(--cyan);
+  box-shadow:0 0 16px rgba(0,245,255,0.08);
+}
+
+.tab.active.stars {
+  background:linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,149,0,0.08));
+  border:1px solid rgba(255,215,0,0.25);
+  color:var(--gold);
+  box-shadow:0 0 16px rgba(255,215,0,0.08);
+}
+
+/* ─── PANELS ─────────────────────────────────────── */
+.panel { display:none; padding:16px 20px; }
+.panel.active { display:block; }
+
+.section-title {
+  font-size:10px; font-weight:700; letter-spacing:2px;
+  text-transform:uppercase; margin-bottom:12px;
+  display:flex; align-items:center; gap:8px;
+}
+.section-title.premium { color:var(--cyan); }
+.section-title.stars { color:var(--gold); }
+.section-title::after { content:''; flex:1; height:1px; background:currentColor; opacity:0.15; }
+
+/* ─── CARDS ──────────────────────────────────────── */
+.card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:16px; padding:14px 16px; margin-bottom:8px;
+  display:flex; align-items:center; justify-content:space-between;
+  cursor:pointer; position:relative; overflow:hidden;
+  transition:all 0.18s; gap:12px;
+}
+
+.card::before {
+  content:''; position:absolute; left:0; top:0; bottom:0;
+  width:2px; border-radius:2px 0 0 2px;
+  pointer-events:none;
+}
+
+.card.premium::before { background:linear-gradient(180deg,var(--cyan),var(--purple)); }
+.card.stars::before   { background:linear-gradient(180deg,var(--gold),#ff9500); }
+
+.card:active {
+  transform:scale(0.985);
+  border-color:rgba(255,255,255,0.12);
+}
+
+.card.premium:active { background:rgba(0,245,255,0.04); }
+.card.stars:active   { background:rgba(255,215,0,0.04); }
+
+.card-left { flex:1; padding-left:8px; min-width:0; }
+
+.card-icon { font-size:18px; margin-bottom:3px; }
+
+.card-name {
+  font-size:13px; font-weight:700; letter-spacing:0.3px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.card.premium .card-name { color:var(--text); }
+.card.stars .card-name   { color:var(--text); }
+
+.card-desc { font-size:11px; color:var(--text-muted); margin-top:2px; }
+
+.card-badge {
+  display:inline-block; font-size:9px; font-weight:700;
+  padding:2px 7px; border-radius:20px; margin-top:5px;
+  letter-spacing:0.5px;
+}
+.card.premium .card-badge { background:var(--cyan-dim); color:var(--cyan); border:1px solid var(--border-cyan); }
+.card.stars .card-badge   { background:var(--gold-dim); color:var(--gold); border:1px solid rgba(255,215,0,0.25); }
+
+.price-tag {
+  flex-shrink:0; padding:8px 13px; border-radius:10px;
+  font-size:12px; font-weight:700; white-space:nowrap;
+  border:none; pointer-events:none;
+}
+.card.premium .price-tag {
+  background:var(--cyan-dim); color:var(--cyan);
+  border:1px solid var(--border-cyan);
+}
+.card.stars .price-tag {
+  background:var(--gold-dim); color:var(--gold);
+  border:1px solid rgba(255,215,0,0.25);
+}
+
+/* ─── BOTTOM SHEET ───────────────────────────────── */
+.overlay {
+  display:none; position:fixed; inset:0; z-index:100;
+  background:rgba(7,9,15,0.85); backdrop-filter:blur(12px);
+  align-items:flex-end; justify-content:center;
+}
+.overlay.open { display:flex; animation:fadeIn 0.2s ease; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+.sheet {
+  background:var(--surface2); border-radius:24px 24px 0 0;
+  width:100%; max-width:520px;
+  border-top:1px solid var(--border);
+  animation:slideUp 0.3s cubic-bezier(.4,0,.2,1);
+  max-height:90vh; overflow-y:auto;
+}
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+
+.sheet-handle { width:36px; height:4px; background:var(--border); border-radius:2px; margin:12px auto 20px; }
+
+.sheet-inner { padding:0 20px 40px; }
+
+.sheet-header {
+  display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;
+}
+
+.sheet-title { font-size:16px; font-weight:800; }
+.sheet-title.premium { color:var(--cyan); }
+.sheet-title.stars   { color:var(--gold); }
+
+.sheet-close {
+  width:32px; height:32px; border-radius:50%;
+  background:var(--surface3); border:1px solid var(--border);
+  color:var(--text-dim); font-size:14px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* Amount display */
+.amount-display {
+  background:var(--surface3); border-radius:16px;
+  padding:16px 20px; margin-bottom:14px;
+  border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.amount-label { font-size:11px; color:var(--text-muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+.amount-value { font-size:24px; font-weight:800; }
+.amount-value.premium { color:var(--cyan); text-shadow:0 0 12px var(--cyan-glow); }
+.amount-value.stars   { color:var(--gold); text-shadow:0 0 12px var(--gold-glow); }
+
+.copy-amount {
+  padding:8px 14px; border-radius:10px; border:none; cursor:pointer;
+  font-size:12px; font-weight:700; letter-spacing:0.5px;
+  transition:all 0.15s;
+}
+.copy-amount.premium { background:var(--cyan-dim); color:var(--cyan); border:1px solid var(--border-cyan); }
+.copy-amount.stars   { background:var(--gold-dim); color:var(--gold); border:1px solid rgba(255,215,0,0.25); }
+.copy-amount:active  { transform:scale(0.93); }
+
+/* Card box */
+.card-box {
+  background:var(--surface3); border-radius:16px;
+  padding:16px 20px; margin-bottom:14px;
+  border:1px solid var(--border);
+}
+.card-box-label { font-size:10px; color:var(--text-muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:10px; }
+.card-row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.card-number { font-family:'Inter',monospace; font-size:16px; font-weight:700; letter-spacing:2px; color:var(--text); }
+.card-owner { font-size:11px; color:var(--text-muted); margin-top:6px; letter-spacing:1px; }
+.copy-card {
+  padding:6px 12px; border-radius:8px; border:none; cursor:pointer;
+  font-size:11px; font-weight:700; letter-spacing:0.5px; white-space:nowrap;
+  transition:all 0.15s;
+}
+.copy-card.premium { background:var(--cyan-dim); color:var(--cyan); border:1px solid var(--border-cyan); }
+.copy-card.stars   { background:var(--gold-dim); color:var(--gold); border:1px solid rgba(255,215,0,0.25); }
+.copy-card:active  { transform:scale(0.93); }
+
+/* Steps */
+.steps { margin-bottom:18px; display:flex; flex-direction:column; gap:8px; }
+.step  { display:flex; align-items:flex-start; gap:10px; }
+.step-num {
+  width:22px; height:22px; border-radius:50%; flex-shrink:0;
+  font-size:11px; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+  margin-top:1px;
+}
+.step-num.premium { background:var(--cyan-dim); color:var(--cyan); border:1px solid var(--border-cyan); }
+.step-num.stars   { background:var(--gold-dim); color:var(--gold); border:1px solid rgba(255,215,0,0.25); }
+.step-text { font-size:12px; color:var(--text-dim); line-height:1.5; }
+
+/* Swipe */
+.swipe-hint-text {
+  text-align:center; font-size:11px; color:var(--text-muted);
+  letter-spacing:0.5px; margin-bottom:10px;
+}
+.swipe-wrap {
+  position:relative; height:60px; border-radius:30px;
+  background:var(--surface3); border:1px solid var(--border);
+  overflow:hidden; touch-action:none; user-select:none;
+}
+.swipe-fill {
+  position:absolute; left:0; top:0; bottom:0; width:60px; border-radius:30px;
+}
+.swipe-fill.premium { background:linear-gradient(90deg,rgba(0,245,255,0.2),transparent); }
+.swipe-fill.stars   { background:linear-gradient(90deg,rgba(255,215,0,0.2),transparent); }
+
+.swipe-label-text {
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center; padding-left:68px;
+  font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase;
+  color:var(--text-muted); pointer-events:none;
+}
+.swipe-thumb {
+  position:absolute; top:5px; left:5px;
+  width:50px; height:50px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; cursor:grab; z-index:2;
+  will-change:transform; transition:box-shadow 0.2s;
+}
+.swipe-thumb.premium {
+  background:linear-gradient(135deg,var(--cyan),rgba(0,200,220,0.8));
+  box-shadow:0 0 20px var(--cyan-glow);
+}
+.swipe-thumb.stars {
+  background:linear-gradient(135deg,var(--gold),#ff9500);
+  box-shadow:0 0 20px var(--gold-glow);
+}
+.swipe-thumb.done {
+  background:linear-gradient(135deg,var(--green),#00cc6a) !important;
+  box-shadow:0 0 24px rgba(0,255,136,0.5) !important;
+}
+
+/* Toast */
+.toast {
+  position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(12px);
+  background:var(--surface2); border:1px solid var(--border-cyan);
+  color:var(--text); padding:10px 18px; border-radius:20px;
+  font-size:12px; font-weight:600; opacity:0;
+  transition:all 0.3s; pointer-events:none; z-index:200;
+  white-space:nowrap; box-shadow:0 4px 20px rgba(0,245,255,0.15);
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* Success overlay */
+.success-overlay {
+  position:fixed; inset:0; z-index:300;
+  background:rgba(7,9,15,0.96);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity 0.4s;
+  padding:32px; text-align:center;
+}
+.success-overlay.show { opacity:1; pointer-events:all; }
+.success-icon { font-size:72px; margin-bottom:20px; animation:pop 0.5s cubic-bezier(.34,1.56,.64,1); }
+@keyframes pop { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+.success-title { font-size:22px; font-weight:800; color:var(--green); margin-bottom:10px; text-shadow:0 0 20px rgba(0,255,136,0.4); }
+.success-sub { font-size:14px; color:var(--text-dim); line-height:1.6; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-text">
+        <div class="brand-name">Telegram Softs</div>
+        <div class="brand-sub">Premium · Stars · Fast</div>
+      </div>
+    </div>
+    <div class="lang-badge" id="langBadge">🇷🇺 RU</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active premium" id="tabPremium" onclick="switchTab('premium')">💎 PREMIUM</div>
+    <div class="tab stars" id="tabStars" onclick="switchTab('stars')">⭐ STARS</div>
+  </div>
+
+  <!-- Premium Panel -->
+  <div class="panel active" id="panelPremium">
+    <div class="section-title premium">Telegram Premium</div>
+
+    <div class="card premium" onclick="openSheet('p_1m','💎','PREMIUM 1 OY / МЕСЯЦ',40000)">
+      <div class="card-left">
+        <div class="card-icon">💎</div>
+        <div class="card-name">1 OY / МЕСЯЦ</div>
+        <div class="card-desc" id="desc_p1m">Kirish orqali faollashtiriladi</div>
+        <span class="card-badge">⚡ TEZKOR</span>
+      </div>
+      <div class="price-tag">40 000</div>
+    </div>
+
+    <div class="card premium" onclick="openSheet('p_3m','💜','PREMIUM 3 OY / МЕСЯЦА',180000)">
+      <div class="card-left">
+        <div class="card-icon">💜</div>
+        <div class="card-name">3 OY / МЕСЯЦА</div>
+        <div class="card-desc">To'liq Premium kirish</div>
+        <span class="card-badge">🔥 MASHHUR</span>
+      </div>
+      <div class="price-tag">180 000</div>
+    </div>
+
+    <div class="card premium" onclick="openSheet('p_6m','👑','PREMIUM 6 OY / МЕСЯЦЕВ',225000)">
+      <div class="card-left">
+        <div class="card-icon">👑</div>
+        <div class="card-name">6 OY / МЕСЯЦЕВ</div>
+        <div class="card-desc">15% tejam / экономия</div>
+        <span class="card-badge">💡 FOYDALI</span>
+      </div>
+      <div class="price-tag">225 000</div>
+    </div>
+
+    <div class="card premium" onclick="openSheet('p_12m','🚀','PREMIUM 12 OY / МЕСЯЦЕВ',321000)">
+      <div class="card-left">
+        <div class="card-icon">🚀</div>
+        <div class="card-name">12 OY / МЕСЯЦЕВ</div>
+        <div class="card-desc">Maksimal tejam 30%</div>
+        <span class="card-badge">👑 ULTRA</span>
+      </div>
+      <div class="price-tag">321 000</div>
+    </div>
+  </div>
+
+  <!-- Stars Panel -->
+  <div class="panel" id="panelStars">
+    <div class="section-title stars">Telegram Stars</div>
+
+    <div class="card stars" onclick="openSheet('s_50','⭐','50 STARS',13000)"><div class="card-left"><div class="card-icon">⭐</div><div class="card-name">50 STARS</div><div class="card-desc">Boshlang'ich paket</div></div><div class="price-tag">13 000</div></div>
+    <div class="card stars" onclick="openSheet('s_100','⭐','100 STARS',24000)"><div class="card-left"><div class="card-icon">⭐</div><div class="card-name">100 STARS</div><div class="card-desc">Asosiy paket</div></div><div class="price-tag">24 000</div></div>
+    <div class="card stars" onclick="openSheet('s_150','⭐','150 STARS',36000)"><div class="card-left"><div class="card-icon">⭐</div><div class="card-name">150 STARS</div><div class="card-desc">Standart</div></div><div class="price-tag">36 000</div></div>
+    <div class="card stars" onclick="openSheet('s_250','🌟','250 STARS',60000)"><div class="card-left"><div class="card-icon">🌟</div><div class="card-name">250 STARS</div><div class="card-desc">Ommabop tanlov</div><span class="card-badge">🔥 HIT</span></div><div class="price-tag">60 000</div></div>
+    <div class="card stars" onclick="openSheet('s_350','🌟','350 STARS',84000)"><div class="card-left"><div class="card-icon">🌟</div><div class="card-name">350 STARS</div><div class="card-desc">Kengaytirilgan</div></div><div class="price-tag">84 000</div></div>
+    <div class="card stars" onclick="openSheet('s_500','💫','500 STARS',120000)"><div class="card-left"><div class="card-icon">💫</div><div class="card-name">500 STARS</div><div class="card-desc">Professional</div><span class="card-badge">⚡ TOP</span></div><div class="price-tag">120 000</div></div>
+    <div class="card stars" onclick="openSheet('s_750','💫','750 STARS',180000)"><div class="card-left"><div class="card-icon">💫</div><div class="card-name">750 STARS</div><div class="card-desc">Biznes paket</div></div><div class="price-tag">180 000</div></div>
+    <div class="card stars" onclick="openSheet('s_1000','🔥','1 000 STARS',240000)"><div class="card-left"><div class="card-icon">🔥</div><div class="card-name">1 000 STARS</div><div class="card-desc">Korporativ</div><span class="card-badge">💎 VIP</span></div><div class="price-tag">240 000</div></div>
+    <div class="card stars" onclick="openSheet('s_1500','🔥','1 500 STARS',360000)"><div class="card-left"><div class="card-icon">🔥</div><div class="card-name">1 500 STARS</div><div class="card-desc">Premium biznes</div></div><div class="price-tag">360 000</div></div>
+    <div class="card stars" onclick="openSheet('s_2500','💥','2 500 STARS',600000)"><div class="card-left"><div class="card-icon">💥</div><div class="card-name">2 500 STARS</div><div class="card-desc">Elite paket</div><span class="card-badge">👑 ELITE</span></div><div class="price-tag">600 000</div></div>
+    <div class="card stars" onclick="openSheet('s_5000','🚀','5 000 STARS',1200000)"><div class="card-left"><div class="card-icon">🚀</div><div class="card-name">5 000 STARS</div><div class="card-desc">Ultra paket</div></div><div class="price-tag">1 200 000</div></div>
+    <div class="card stars" onclick="openSheet('s_10000','🚀','10 000 STARS',2400000)"><div class="card-left"><div class="card-icon">🚀</div><div class="card-name">10 000 STARS</div><div class="card-desc">Maksimal</div><span class="card-badge">🔱 MAX</span></div><div class="price-tag">2 400 000</div></div>
+    <div class="card stars" onclick="openSheet('s_25000','💎','25 000 STARS',6000000)"><div class="card-left"><div class="card-icon">💎</div><div class="card-name">25 000 STARS</div><div class="card-desc">Legendary</div><span class="card-badge">⚜️ LEGEND</span></div><div class="price-tag">6 000 000</div></div>
+    <div class="card stars" onclick="openSheet('s_35000','💎','35 000 STARS',8400000)"><div class="card-left"><div class="card-icon">💎</div><div class="card-name">35 000 STARS</div><div class="card-desc">Diamond</div></div><div class="price-tag">8 400 000</div></div>
+    <div class="card stars" onclick="openSheet('s_50000','👑','50 000 STARS',12000000)"><div class="card-left"><div class="card-icon">👑</div><div class="card-name">50 000 STARS</div><div class="card-desc">Ultimate</div><span class="card-badge">🌌 ULTIMATE</span></div><div class="price-tag">12 000 000</div></div>
+  </div>
+</div>
+
+<!-- Bottom Sheet -->
+<div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
+  <div class="sheet" id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-inner">
+      <div class="sheet-header">
+        <div class="sheet-title premium" id="sheetTitle">PREMIUM</div>
+        <button class="sheet-close" onclick="closeSheet()">✕</button>
+      </div>
+
+      <div class="amount-display">
+        <div>
+          <div class="amount-label" id="amountLabel">SUMMA / СУММА</div>
+          <div class="amount-value premium" id="amountVal">—</div>
+        </div>
+        <button class="copy-amount premium" id="copyAmountBtn" onclick="copyAmount()">COPY</button>
+      </div>
+
+      <div class="card-box">
+        <div class="card-box-label">UZCARD REKVIZITLARI</div>
+        <div class="card-row">
+          <div class="card-number" id="cardNum">5614 6821 1076 2236</div>
+          <button class="copy-card premium" id="copyCardBtn" onclick="copyCard()">COPY</button>
+        </div>
+        <div class="card-owner">I.TOJIBOYEV</div>
+      </div>
+
+      <div class="steps" id="stepsBlock">
+        <div class="step">
+          <div class="step-num premium">1</div>
+          <div class="step-text" id="step1">Karta raqamini nusxalang / Скопируйте номер карты</div>
+        </div>
+        <div class="step">
+          <div class="step-num premium">2</div>
+          <div class="step-text" id="step2">Click / Payme orqali aniq summani o'tkazing</div>
+        </div>
+        <div class="step">
+          <div class="step-num premium">3</div>
+          <div class="step-text" id="step3">Chek skrinshot'ini oling / Сделайте скриншот чека</div>
+        </div>
+        <div class="step">
+          <div class="step-num premium">4</div>
+          <div class="step-text" id="step4">Sliderni o'ngga torting / Потяните слайдер вправо</div>
+        </div>
+      </div>
+
+      <div class="swipe-hint-text" id="swipeHintText">To'lovdan keyin → / После оплаты →</div>
+      <div class="swipe-wrap" id="swipeWrap">
+        <div class="swipe-fill premium" id="swipeFill"></div>
+        <div class="swipe-label-text" id="swipeLabelText">TASDIQLASH / ПОДТВЕРДИТЬ</div>
+        <div class="swipe-thumb premium" id="swipeThumb">➤</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="success-overlay" id="successOverlay">
+  <div class="success-icon">✅</div>
+  <div class="success-title" id="successTitle">To'lov tasdiqlandi!</div>
+  <div class="success-sub" id="successSub">Chek rasmini botga yuboring 📸</div>
+</div>
+
+<script>
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#07090f'); tg.setBackgroundColor('#07090f'); }
+
+const CARD = '5614682110762236';
+const CARD_DISPLAY = '5614 6821 1076 2236';
+
+let currentProduct = null;
+let confirmed = false;
+
+// Tab switch
+function switchTab(tab) {
+  document.getElementById('tabPremium').className = 'tab' + (tab==='premium' ? ' active premium' : '');
+  document.getElementById('tabStars').className   = 'tab' + (tab==='stars'   ? ' active stars'   : '');
+  document.getElementById('panelPremium').className = 'panel' + (tab==='premium' ? ' active' : '');
+  document.getElementById('panelStars').className   = 'panel' + (tab==='stars'   ? ' active' : '');
+}
+
+// Open payment sheet
+function openSheet(id, icon, name, price) {
+  currentProduct = { id, icon, name, price };
+  confirmed = false;
+  resetSwipe();
+
+  const isPremium = id.startsWith('p_');
+  const cls = isPremium ? 'premium' : 'stars';
+
+  document.getElementById('sheetTitle').textContent = `${icon} ${name}`;
+  document.getElementById('sheetTitle').className = `sheet-title ${cls}`;
+  document.getElementById('amountVal').textContent = price.toLocaleString('ru-RU') + ' сум';
+  document.getElementById('amountVal').className = `amount-value ${cls}`;
+  document.getElementById('copyAmountBtn').className = `copy-amount ${cls}`;
+  document.getElementById('copyCardBtn').className = `copy-card ${cls}`;
+  document.getElementById('swipeFill').className = `swipe-fill ${cls}`;
+  document.getElementById('swipeThumb').className = `swipe-thumb ${cls}`;
+
+  // Steps color
+  document.querySelectorAll('.step-num').forEach(el => {
+    el.className = `step-num ${cls}`;
+  });
+
+  document.getElementById('overlay').classList.add('open');
+  if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+}
+
+function closeSheet() {
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('overlay')) closeSheet();
+}
+
+// Copy functions
+function copyCard() {
+  copy(CARD_DISPLAY, '✅ Karta nusxalandi!');
+}
+
+function copyAmount() {
+  if (!currentProduct) return;
+  copy(String(currentProduct.price), '✅ Summa nusxalandi!');
+}
+
+function copy(text, msg) {
+  navigator.clipboard.writeText(text).catch(() => {
+    const el = document.createElement('textarea');
+    el.value = text; document.body.appendChild(el);
+    el.select(); document.execCommand('copy');
+    document.body.removeChild(el);
+  });
+  showToast(msg);
+  if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// Swipe logic
+const swipeWrap  = document.getElementById('swipeWrap');
+const swipeThumb = document.getElementById('swipeThumb');
+const swipeFill  = document.getElementById('swipeFill');
+const swipeLabel = document.getElementById('swipeLabelText');
+
+let dragging = false, startX = 0;
+const THUMB = 50, OFFSET = 5;
+
+function trackW() { return swipeWrap.offsetWidth - THUMB - OFFSET * 2; }
+
+function resetSwipe() {
+  confirmed = false;
+  swipeThumb.style.left = OFFSET + 'px';
+  swipeFill.style.width = THUMB + 'px';
+  swipeLabel.style.opacity = '1';
+  swipeThumb.classList.remove('done');
+  swipeThumb.textContent = '➤';
+}
+
+function onStart(e) {
+  if (confirmed) return;
+  dragging = true;
+  startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+  swipeThumb.style.transition = 'none';
+  swipeFill.style.transition  = 'none';
+}
+
+function onMove(e) {
+  if (!dragging || confirmed) return;
+  const x = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+  const delta = Math.max(0, Math.min(x - startX, trackW()));
+  swipeThumb.style.left = (OFFSET + delta) + 'px';
+  swipeFill.style.width = (THUMB + delta) + 'px';
+  swipeLabel.style.opacity = Math.max(0, 1 - (delta / trackW()) * 2).toString();
+  if (delta / trackW() >= 0.95) onSuccess();
+}
+
+function onEnd() {
+  if (!dragging || confirmed) return;
+  dragging = false;
+  swipeThumb.style.transition = 'left 0.3s ease';
+  swipeFill.style.transition  = 'width 0.3s ease';
+  swipeThumb.style.left = OFFSET + 'px';
+  swipeFill.style.width = THUMB + 'px';
+  swipeLabel.style.opacity = '1';
+}
+
+function onSuccess() {
+  if (confirmed) return;
+  confirmed = true;
+
+  swipeThumb.classList.add('done');
+  swipeThumb.textContent = '✓';
+  swipeThumb.style.left = (OFFSET + trackW()) + 'px';
+  swipeFill.style.width = '100%';
+  swipeLabel.style.opacity = '0';
+
+  if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+  setTimeout(() => {
+    document.getElementById('successOverlay').classList.add('show');
+  }, 200);
+
+  setTimeout(() => {
+    document.getElementById('successOverlay').classList.remove('show');
+  }, 1200);
+
+  setTimeout(() => {
+    const payload = JSON.stringify({
+      product_id:   currentProduct.id,
+      product_name: currentProduct.name,
+      price:        currentProduct.price,
+    });
+    if (tg) {
+      tg.sendData(payload);
+      tg.close();
+    }
+  }, 1400);
+}
+
+swipeThumb.addEventListener('touchstart', onStart, { passive:true });
+document.addEventListener('touchmove', onMove, { passive:true });
+document.addEventListener('touchend', onEnd);
+swipeThumb.addEventListener('mousedown', onStart);
+document.addEventListener('mousemove', onMove);
+document.addEventListener('mouseup', onEnd);
+</script>
+</body>
+</html>
