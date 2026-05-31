@@ -63,7 +63,7 @@ const T: Record<Lang, any> = {
   uz: {
     chooseLang:    '🌐 Tilni tanlang:',
     langChosen:    '✅ Til: O\'zbek',
-    welcome:       '👋 Xush kelibsiz, {name}!\n\nTelegram Premium va Stars sotib oling — tez va ishonchli.',
+    welcome:       '👋 Xush bekibsiz, {name}!\n\nTelegram Premium va Stars sotib oling — tez va ishonchli.',
     openShop:      '🛍 Do\'konni ochish',
     profile:       '👤 Profil',
     referral:      '👥 Referal dasturi',
@@ -80,13 +80,13 @@ const T: Record<Lang, any> = {
     notEnoughBal:  '❌ Balansda mablag\' yetarli emas.\n\n💰 Balans: {balance} so\'m\n💳 Kerak: {price} so\'m',
     paidByBalance: '✅ Balansdan to\'landi!\n\n📦 {product}\n👤 @{username}\n🆔 Buyurtma: `{orderId}`\n\n⏳ Bajarilishini kuting.',
     payCard:       '💳 *Uzcard orqali to\'lov*\n\nKarta raqami: `{card}`\nEgasi: {holder}\n\n💰 Summa: *{price} so\'m*\n📦 {product}\n👤 @{username}\n\n📸 To\'lovdan so\'ng chek skrinshotini yuboring.',
-    receiptOk:     '✅ Chek qabul qilindi!\n\n🕐 30 daqiqagacha.\n🆔 Buyurtma: `{orderId}`',
+    receiptOk:     '✅ Chek qabul edi!\n\n🕐 30 daqiqagacha.\n🆔 Buyurtma: `{orderId}`',
     sendPhoto:     '📸 Chek rasmini yuboring.',
     approved:      '🎉 *Buyurtma bajarildi!*\n\n📦 {product}\n👤 @{username}\n\nRahmat!',
     rejected:      '❌ *Buyurtma rad etildi.*\n\n📦 {product}\n💬 Sabab: {reason}',
     noOrders:      '📭 Buyurtmalar yo\'q.',
     ordersTitle:   '📋 *Buyurtmalaringiz:*\n\n',
-    supportText:   '💬 Qo\'llab-quvvatlash: @YOUR_SUPPORT\n⏰ 9:00–22:00 (UTC+5)',
+    supportText:   '💬 Qo\'llab-quvvatlash: @Tadjibaev_i\n⏰ 9:00–22:00 (UTC+5)',
     flood:         '⏳ Shoshilmang!',
     status: {
       awaiting_receipt: '⏳ Chek kutilmoqda',
@@ -133,9 +133,23 @@ function newOrderId(): string {
 
 function fmt(n: number): string { return n.toLocaleString('ru-RU'); }
 
-// ─── Express ──────────────────────────────────────────────────
+// ─── Express (TO'G'RILANGAN QISM) ──────────────────────────────
 const app = express();
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json());
+
+// HTML va static fayllarni asosiy hamda dist papkalaridan qidirishni yoqamiz
+app.use(express.static(path.join(__dirname, '../')));
+app.use(express.static(path.join(__dirname, '../../')));
+
+// Asosiy url ochilganda index.html faylini ko'rsatamiz
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../index.html'), (err) => {
+    if (err) {
+      res.sendFile(path.join(__dirname, '../../index.html'));
+    }
+  });
+});
+
 app.listen(PORT, () => console.log(`🌐 Port ${PORT}`));
 
 // ─── Bot ──────────────────────────────────────────────────────
@@ -173,13 +187,6 @@ async function startBot() {
     ]],
   });
 
-  const paymentKb = (lang: Lang, balance: number): TelegramBot.InlineKeyboardMarkup => ({
-    inline_keyboard: [
-      [{ text: tr(lang,'payByCard'), callback_data: 'pay:card' }],
-      [{ text: tr(lang,'payByBalance', { balance: fmt(balance) }), callback_data: 'pay:balance' }],
-    ],
-  });
-
   // ── /start ──────────────────────────────────────────────────
   bot.onText(/\/start(?:\s+(.+))?/, async (msg, match) => {
     const uid = msg.from!.id;
@@ -207,7 +214,7 @@ async function startBot() {
     for (const id of ids) {
       try { await bot.sendMessage(id, text, { parse_mode: 'Markdown' }); sent++; }
       catch { failed++; }
-      await new Promise(r => setTimeout(r, 50)); // не спамить Telegram API
+      await new Promise(r => setTimeout(r, 50));
     }
     await bot.sendMessage(ADMIN_ID, `✅ Рассылка завершена.\n\n✅ Доставлено: ${sent}\n❌ Ошибок: ${failed}`);
   });
@@ -244,7 +251,6 @@ async function startBot() {
       } catch {}
     };
 
-    // Язык
     if (data.startsWith('lang:')) {
       const l = data.split(':')[1] as Lang;
       setLang(uid, l);
@@ -257,7 +263,6 @@ async function startBot() {
       return;
     }
 
-    // Способ оплаты
     if (data === 'pay:card') {
       const state = getState(uid);
       setState(uid, { step: 'awaiting_receipt' });
@@ -301,7 +306,6 @@ async function startBot() {
         }),
         { parse_mode: 'Markdown', reply_markup: mainKb(lang) }
       );
-      // Уведомить админа
       await bot.sendMessage(ADMIN_ID,
         `🛒 *Новый заказ (баланс)!*\n\n🆔 \`${orderId}\`\n📦 ${state.productName}\n💰 ${fmt(state.price!)} сум\n👤 @${state.targetUsername}\n🧑 ${q.from.first_name} (ID: ${uid})`,
         { parse_mode: 'Markdown', reply_markup: adminKb(orderId) }
@@ -309,7 +313,6 @@ async function startBot() {
       return;
     }
 
-    // Одобрить
     if (data.startsWith('approve:') && uid === ADMIN_ID) {
       const orderId = data.replace('approve:', '');
       const order = getOrder(orderId);
@@ -328,7 +331,6 @@ async function startBot() {
       return;
     }
 
-    // Отклонить
     if (data.startsWith('reject:') && uid === ADMIN_ID) {
       const orderId = data.replace('reject:', '');
       adminReject.set(uid, orderId);
@@ -350,7 +352,6 @@ async function startBot() {
       return;
     }
 
-    // Причина отклонения
     if (uid === ADMIN_ID) {
       const rejectId = adminReject.get(uid);
       if (rejectId && text && !text.startsWith('/')) {
@@ -370,15 +371,14 @@ async function startBot() {
       }
     }
 
-    // Web App данные (после свайпа)
     if (msg.web_app_data?.data) {
       try {
         const d = JSON.parse(msg.web_app_data.data);
         setState(uid, {
           step: 'awaiting_username',
-          productId: d.product_id,
+          productId: d.product_id || d.product_name, // fallback agar id bo'lmasa
           productName: d.product_name,
-          price: d.price,
+          price: d.product_price || d.price, // boyagi HTML kodga moslandi
         });
         await bot.sendMessage(uid, tr(lang,'enterUsername'), { reply_markup: { remove_keyboard: true } });
       } catch {
@@ -387,7 +387,6 @@ async function startBot() {
       return;
     }
 
-    // Username получателя
     if (state.step === 'awaiting_username' && text && !text.startsWith('/')) {
       const cleaned = text.replace('@','').trim();
       if (!/^[a-zA-Z0-9_]{5,32}$/.test(cleaned)) {
@@ -408,7 +407,6 @@ async function startBot() {
       return;
     }
 
-    // Фото чека
     if (state.step === 'awaiting_receipt') {
       let fileId: string | undefined;
       if (msg.photo)         fileId = msg.photo[msg.photo.length - 1].file_id;
@@ -446,7 +444,6 @@ async function startBot() {
       return;
     }
 
-    // Кнопки меню
     if (text === tr(lang,'profile')) {
       const u = getUser(uid);
       await bot.sendMessage(uid,
@@ -494,7 +491,6 @@ async function startBot() {
       return;
     }
 
-    // Дефолт
     if (state.step === 'main_menu' || state.step === 'idle') {
       await bot.sendMessage(uid, tr(lang,'welcome', { name: msg.from!.first_name }), {
         reply_markup: mainKb(lang), parse_mode: 'Markdown',
@@ -507,3 +503,4 @@ async function startBot() {
 }
 
 startBot().catch(err => { console.error('Fatal:', err); process.exit(1); });
+    
