@@ -104,7 +104,7 @@ function tr(lang: Lang, key: string, vars?: Record<string, string>): string {
   for (const k of keys) val = val?.[k];
   if (typeof val !== 'string') return key;
   if (!vars) return val;
-  return Object.entries(vars).reduce((s, [k, v]) => s.replaceAll(`{${k}}`, v), val);
+  return Object.entries(vars).reduce((s, [k, v]) => s.replace(`{${k}}`, v), val);
 }
 
 // ─── State (in-memory) ────────────────────────────────────────
