@@ -109,6 +109,7 @@ export function registerProfile(bot: Bot) {
     await ctx.reply(t(lang, "topup_received"));
   });
 
+  // ── ЭНГ АСОСИЙ ТОП-ФИКС ЖОЙИ ──────────────────────────────────────────────
   bot.callbackQuery(/^topup_ok:(\d+):(\d+):(\d+)$/, async (ctx) => {
     if (!config.ADMINS.includes(ctx.from.id)) {
       await ctx.answerCallbackQuery(); return;
@@ -124,12 +125,16 @@ export function registerProfile(bot: Bot) {
     const lang    = (user.language as Lang) || "ru";
     const balance = Number(user.balance);
 
+    // [ТУЗАТИШ]: Мижозга хабар билан бирга янгиланган янги инлайн клавиатурани ҳам қўшиб юборамиз!
     await ctx.api.sendMessage(Number(userId),
       t(lang, "topup_approved", {
         amount:  amount.toLocaleString("ru-RU"),
         balance: balance.toLocaleString("ru-RU"),
       }),
-      { parse_mode: "HTML" }
+      { 
+        parse_mode: "HTML",
+        reply_markup: mainMenuKb(lang, user.telegramId) // Мана шу тугма янги балансни маркетга олиб киради!
+      }
     );
 
     await ctx.editMessageCaption({
@@ -155,4 +160,4 @@ export function registerProfile(bot: Bot) {
     await ctx.editMessageCaption({ caption: "❌ ОТКЛОНЕНО" });
     await ctx.answerCallbackQuery("❌");
   });
-  }
+}
