@@ -9,7 +9,9 @@ export function langKb(): InlineKeyboard {
 }
 
 export function mainMenuKb(lang: Lang, tgId: bigint): InlineKeyboard {
-  const url = `https://${config.RENDER_EXTERNAL_HOSTNAME}/app?tg_id=${tgId}&lang=${lang}`;
+  // Фронтендда ҳеч қандай хатолик бўлмаслиги учун барча мумкин бўлган вариантларни линкка қўшиб юборамиз
+  const url = `https://${config.RENDER_EXTERNAL_HOSTNAME}/app?tgId=${tgId}&tg_id=${tgId}&userId=${tgId}&lang=${lang}`;
+  
   return new InlineKeyboard()
     .webApp(t(lang, "open_shop"), url).row()
     .text(t(lang, "profile_btn"), "profile").row()
