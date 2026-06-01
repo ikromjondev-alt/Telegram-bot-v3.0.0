@@ -155,4 +155,4 @@ export function registerProfile(bot: Bot) {
     await ctx.editMessageCaption({ caption: "❌ ОТКЛОНЕНО" });
     await ctx.answerCallbackQuery("❌");
   });
-              }
+  }
