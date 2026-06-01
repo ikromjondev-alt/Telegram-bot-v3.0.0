@@ -1,4 +1,4 @@
-import { Bot } from "grammy";
+import { Bot, InlineKeyboard } from "grammy";
 import { prisma } from "../db";
 import { t, Lang } from "../i18n";
 import { adminOrderKb, reviewKb, mainMenuKb } from "./keyboards";
@@ -89,8 +89,12 @@ export function registerOrders(bot: Bot) {
   bot.callbackQuery(/^review_no:(\d+)$/, async (ctx) => {
     const user = await prisma.user.findUnique({ where: { telegramId: BigInt(ctx.from.id) } });
     const lang = (user?.language as Lang) ?? "ru";
+    
+    // Тўғри линк билан таъминланган клавиатурани юборамиз
+    const keyboard = mainMenuKb(lang, BigInt(ctx.from.id));
+
     await ctx.editMessageText(t(lang, "main_menu"), {
-      reply_markup: mainMenuKb(lang, BigInt(ctx.from.id)),
+      reply_markup: keyboard,
       parse_mode: "HTML",
     });
     await ctx.answerCallbackQuery();
@@ -120,12 +124,17 @@ export function registerOrders(bot: Bot) {
       `💬 ${ctx.message.text}`;
 
     try {
+      await config.CHANNEL_ID;
       await ctx.api.sendMessage(config.CHANNEL_ID, reviewText, { parse_mode: "HTML" });
     } catch {}
 
     waitingReview.delete(ctx.from.id);
+
+    // Шарҳ учун раҳматнома хабари клавиатурасини мажбурий тўғрилаймиз
+    const keyboard = mainMenuKb(lang, BigInt(ctx.from.id));
+
     await ctx.reply(t(lang, "review_thanks"), {
-      reply_markup: mainMenuKb(lang, BigInt(ctx.from.id)),
+      reply_markup: keyboard,
     });
   });
 }
