@@ -12,7 +12,7 @@ export function createApiServer(bot: Bot) {
 
   // ── Serve Web App ──────────────────────────────────────────────────────────
   app.get("/app", (_req, res) => {
-    res.sendFile(path.join(__dirname, "webapp.html"));
+    res.sendFile(path.join(process.cwd(), "src", "api", "webapp.html"));
   });
 
   // ── GET /api/user/:tgId ────────────────────────────────────────────────────
