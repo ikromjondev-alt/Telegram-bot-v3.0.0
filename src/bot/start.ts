@@ -1,4 +1,4 @@
-import { Bot, Context } from "grammy";
+import { Bot } from "grammy";
 import { prisma } from "../db";
 import { t, Lang } from "../i18n";
 import { langKb, mainMenuKb } from "./keyboards";
@@ -21,39 +21,49 @@ export function registerStart(bot: Bot) {
       where: { telegramId: BigInt(tgUser.id) },
     });
 
+    const isNewUser = !user;
+
     if (!user) {
       user = await prisma.user.create({
         data: {
           telegramId: BigInt(tgUser.id),
           username:   tgUser.username ?? "",
-          language:   "ru",
+          language:   "",
           referralBy,
         },
       });
-    }
-
-    const lang = (user.language as Lang) || "ru";
-
-    if (lang === "ru" || lang === "uz") {
-      await ctx.reply(t(lang, "main_menu"), {
-        reply_markup: mainMenuKb(lang, user.telegramId),
-        parse_mode: "HTML",
-      });
     } else {
-      await ctx.reply(t("ru", "choose_lang"), {
-        reply_markup: langKb(),
+      // update username
+      await prisma.user.update({
+        where: { telegramId: BigInt(tgUser.id) },
+        data:  { username: tgUser.username ?? user.username },
       });
     }
+
+    // new user or no language set — ask language
+    if (isNewUser || !user.language) {
+      await ctx.reply(
+        "👋 Добро пожаловать! / Xush kelibsiz!\n\nВыберите язык / Tilni tanlang:",
+        { reply_markup: langKb() }
+      );
+      return;
+    }
+
+    const lang = user.language as Lang;
+    await ctx.reply(t(lang, "main_menu"), {
+      reply_markup: mainMenuKb(lang, user.telegramId),
+      parse_mode: "HTML",
+    });
   });
 
   bot.callbackQuery(/^lang:(ru|uz)$/, async (ctx) => {
     const lang = ctx.match[1] as Lang;
-    await prisma.user.update({
+    const user = await prisma.user.update({
       where: { telegramId: BigInt(ctx.from.id) },
       data:  { language: lang },
     });
     await ctx.editMessageText(t(lang, "main_menu"), {
-      reply_markup: mainMenuKb(lang, BigInt(ctx.from.id)),
+      reply_markup: mainMenuKb(lang, user.telegramId),
       parse_mode: "HTML",
     });
     await ctx.answerCallbackQuery();
@@ -63,7 +73,7 @@ export function registerStart(bot: Bot) {
     const user = await prisma.user.findUnique({
       where: { telegramId: BigInt(ctx.from.id) },
     });
-    const lang = (user?.language as Lang) ?? "ru";
+    const lang = (user?.language as Lang) || "ru";
     await ctx.editMessageText(t(lang, "main_menu"), {
       reply_markup: mainMenuKb(lang, BigInt(ctx.from.id)),
       parse_mode: "HTML",
