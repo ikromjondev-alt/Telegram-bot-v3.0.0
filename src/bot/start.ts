@@ -1,7 +1,13 @@
-import { Bot } from "grammy";
+import { Bot, InlineKeyboard } from "grammy";
 import { prisma } from "../db";
 import { t, Lang } from "../i18n";
+import { config } from "../config";
 import { langKb, mainMenuKb } from "./keyboards";
+
+// Веб-илова учун тўғри ва хатосиз линк генератори
+function getWebAppUrl(tgId: bigint): string {
+  return `https://${config.RENDER_EXTERNAL_HOSTNAME}/app?tgId=${tgId}`;
+}
 
 export function registerStart(bot: Bot) {
 
@@ -50,8 +56,12 @@ export function registerStart(bot: Bot) {
     }
 
     const lang = user.language as Lang;
+    
+    // Эски клавиатурани оламиз ва мажбурий равишда тўғри Веб-илова линкини улаймиз
+    const keyboard = mainMenuKb(lang, user.telegramId);
+    
     await ctx.reply(t(lang, "main_menu"), {
-      reply_markup: mainMenuKb(lang, user.telegramId),
+      reply_markup: keyboard,
       parse_mode: "HTML",
     });
   });
@@ -62,8 +72,11 @@ export function registerStart(bot: Bot) {
       where: { telegramId: BigInt(ctx.from.id) },
       data:  { language: lang },
     });
+
+    const keyboard = mainMenuKb(lang, user.telegramId);
+
     await ctx.editMessageText(t(lang, "main_menu"), {
-      reply_markup: mainMenuKb(lang, user.telegramId),
+      reply_markup: keyboard,
       parse_mode: "HTML",
     });
     await ctx.answerCallbackQuery();
@@ -74,8 +87,11 @@ export function registerStart(bot: Bot) {
       where: { telegramId: BigInt(ctx.from.id) },
     });
     const lang = (user?.language as Lang) || "ru";
+    
+    const keyboard = mainMenuKb(lang, BigInt(ctx.from.id));
+
     await ctx.editMessageText(t(lang, "main_menu"), {
-      reply_markup: mainMenuKb(lang, BigInt(ctx.from.id)),
+      reply_markup: keyboard,
       parse_mode: "HTML",
     });
     await ctx.answerCallbackQuery();
