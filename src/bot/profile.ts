@@ -1,4 +1,4 @@
-import { Bot, Context } from "grammy";
+import { Bot } from "grammy";
 import { prisma } from "../db";
 import { t, Lang } from "../i18n";
 import { mainMenuKb, topupCancelKb, adminTopupKb } from "./keyboards";
@@ -16,14 +16,17 @@ export function registerProfile(bot: Bot) {
     });
     if (!user) { await ctx.answerCallbackQuery(); return; }
 
-    const lang     = user.language as Lang;
-    const refLink  = `https://t.me/softsbot?start=${user.telegramId}`;
-    const text     = t(lang, "profile_text", {
+    const lang    = (user.language as Lang) || "ru";
+    const refLink = `https://t.me/${ctx.me.username}?start=${user.telegramId}`;
+    const balance = Number(user.balance);
+    const spent   = Number(user.totalSpent);
+
+    const text = t(lang, "profile_text", {
       tg_id:    String(user.telegramId),
       username: user.username || "—",
-      balance:  user.balance.toLocaleString("ru-RU"),
+      balance:  balance.toLocaleString("ru-RU"),
       orders:   user.orders.length,
-      spent:    user.totalSpent.toLocaleString("ru-RU"),
+      spent:    spent.toLocaleString("ru-RU"),
       ref_link: refLink,
     });
 
@@ -52,8 +55,8 @@ export function registerProfile(bot: Bot) {
     const user = await prisma.user.findUnique({
       where: { telegramId: BigInt(ctx.from.id) },
     });
-    const lang = (user?.language as Lang) ?? "ru";
-    const amount = parseInt(ctx.message.text.replace(/\s|,/g, ""));
+    const lang   = (user?.language as Lang) ?? "ru";
+    const amount = parseInt(ctx.message.text.replace(/\s|,|\./g, ""));
 
     if (isNaN(amount) || amount < 10000) {
       await ctx.reply(t(lang, "topup_invalid"));
@@ -107,8 +110,9 @@ export function registerProfile(bot: Bot) {
   });
 
   bot.callbackQuery(/^topup_ok:(\d+):(\d+):(\d+)$/, async (ctx) => {
-    if (!config.ADMINS.includes(ctx.from.id)) { await ctx.answerCallbackQuery(); return; }
-
+    if (!config.ADMINS.includes(ctx.from.id)) {
+      await ctx.answerCallbackQuery(); return;
+    }
     const [, , userId, amountStr] = ctx.match;
     const amount = parseInt(amountStr);
 
@@ -117,25 +121,38 @@ export function registerProfile(bot: Bot) {
       data:  { balance: { increment: amount } },
     });
 
-    await ctx.api.sendMessage(Number(userId), t(user.language as Lang, "topup_approved", {
-      amount:  amount.toLocaleString("ru-RU"),
-      balance: user.balance.toLocaleString("ru-RU"),
-    }), { parse_mode: "HTML" });
+    const lang    = (user.language as Lang) || "ru";
+    const balance = Number(user.balance);
 
-    await ctx.editMessageCaption({ caption: `✅ ПОДТВЕРЖДЕНО | +${amount.toLocaleString()} UZS` });
+    await ctx.api.sendMessage(Number(userId),
+      t(lang, "topup_approved", {
+        amount:  amount.toLocaleString("ru-RU"),
+        balance: balance.toLocaleString("ru-RU"),
+      }),
+      { parse_mode: "HTML" }
+    );
+
+    await ctx.editMessageCaption({
+      caption: `✅ ПОДТВЕРЖДЕНО | @${user.username} | +${amount.toLocaleString()} UZS`,
+    });
     await ctx.answerCallbackQuery("✅ Готово");
   });
 
   bot.callbackQuery(/^topup_no:(\d+):(\d+)$/, async (ctx) => {
-    if (!config.ADMINS.includes(ctx.from.id)) { await ctx.answerCallbackQuery(); return; }
-
-    const [, , userId] = ctx.match;
-    const user = await prisma.user.findUnique({ where: { telegramId: BigInt(userId) } });
-    if (user) {
-      await ctx.api.sendMessage(Number(userId), t(user.language as Lang, "topup_rejected"));
+    if (!config.ADMINS.includes(ctx.from.id)) {
+      await ctx.answerCallbackQuery(); return;
     }
-
+    const [, , userId] = ctx.match;
+    const user = await prisma.user.findUnique({
+      where: { telegramId: BigInt(userId) },
+    });
+    if (user) {
+      await ctx.api.sendMessage(
+        Number(userId),
+        t(user.language as Lang, "topup_rejected")
+      );
+    }
     await ctx.editMessageCaption({ caption: "❌ ОТКЛОНЕНО" });
     await ctx.answerCallbackQuery("❌");
   });
-                              }
+              }
