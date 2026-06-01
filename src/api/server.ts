@@ -10,9 +10,19 @@ export function createApiServer(bot: Bot) {
   const app = express();
   app.use(express.json());
 
-  // ── Serve Web App ──────────────────────────────────────────────────────────
+  // ── 1. Сервер статик файлларни тўғри топиши учун созлама ───────────────────
+  // Бу тузатиш Render деплой бўлганда HTML файл йўқолиб қолмаслигини таъминлайди
+  const publicPath = path.join(process.cwd(), "src", "api");
+  app.use(express.static(publicPath));
+
+  // ── 2. Serve Web App (cannot GET хатосини бутунлай йўқотади) ──────────────
   app.get("/app", (_req, res) => {
-    res.sendFile(path.join(process.cwd(), "src", "api", "webapp.html"));
+    res.sendFile(path.join(publicPath, "webapp.html"));
+  });
+
+  // Кафолат учун қўшимча роутер (агар /webapp деб чақирилса ҳам очилади)
+  app.get("/webapp", (_req, res) => {
+    res.sendFile(path.join(publicPath, "webapp.html"));
   });
 
   // ── GET /api/user/:tgId ────────────────────────────────────────────────────
@@ -49,8 +59,12 @@ export function createApiServer(bot: Bot) {
 
   // ── GET /api/products ──────────────────────────────────────────────────────
   app.get("/api/products", async (_req, res) => {
-    const products = await prisma.product.findMany();
-    res.json(products);
+    try {
+      const products = await prisma.product.findMany();
+      res.json(products);
+    } catch (e) {
+      res.status(500).json({ error: "Server error fetching products" });
+    }
   });
 
   // ── GET /api/orders/:tgId ──────────────────────────────────────────────────
@@ -80,11 +94,18 @@ export function createApiServer(bot: Bot) {
     }
   });
 
-  // ── POST /api/buy ──────────────────────────────────────────────────────────
+  // ── POST /api/buy (Тўлиқ фикс қилинган вариант) ───────────────────────────
   app.post("/api/buy", async (req, res) => {
-    const { tg_id, product_id, recipient } = req.body as {
-      tg_id: string; product_id: number; recipient?: string;
-    };
+    // HTML дан userId ва productId келса ҳам, tg_id келса ҳам тизим бирдек тушунадиган қилинди
+    const body = req.body as any;
+    const tg_id = body.tg_id || body.userId;
+    const product_id = Number(body.product_id || body.productId);
+    const recipient = body.recipient;
+
+    if (!tg_id || !product_id) {
+      res.status(400).json({ error: "Missing userId or productId" });
+      return;
+    }
 
     try {
       const user = await prisma.user.findUnique({
@@ -126,8 +147,7 @@ export function createApiServer(bot: Bot) {
             data:  { balance: { increment: config.REFERRAL_REWARD } },
           });
           try {
-            await bot.api.sendMessage(Number(user.referralBy),
-              t("ru", "ref_reward"));
+            await bot.api.sendMessage(Number(user.referralBy), t("ru", "ref_reward"));
           } catch {}
           referralBonus = true;
         }
@@ -141,16 +161,20 @@ export function createApiServer(bot: Bot) {
       // notify admins
       const lang = user.language as Lang;
       for (const adminId of config.ADMINS) {
-        await bot.api.sendMessage(adminId,
-          t("ru", "admin_order", {
-            username:  user.username ?? String(user.telegramId),
-            uid:       String(user.telegramId),
-            product:   product.name,
-            price:     product.price.toLocaleString("ru-RU"),
-            recipient: recipient ?? "self",
-          }),
-          { reply_markup: adminOrderKb(order.id, user.telegramId), parse_mode: "HTML" }
-        );
+        try {
+          await bot.api.sendMessage(adminId,
+            t("ru", "admin_order", {
+              username:  user.username ?? String(user.telegramId),
+              uid:       String(user.telegramId),
+              product:   product.name,
+              price:     product.price.toLocaleString("ru-RU"),
+              recipient: recipient ?? "self",
+            }),
+            { reply_markup: adminOrderKb(order.id, user.telegramId), parse_mode: "HTML" }
+          );
+        } catch (err) {
+          console.error("Admin notification failed:", err);
+        }
       }
 
       // cashback notify
@@ -169,10 +193,10 @@ export function createApiServer(bot: Bot) {
         referral_bonus: referralBonus,
       });
     } catch (e) {
-      console.error(e);
+      console.error("Error in /api/buy:", e);
       res.status(500).json({ error: "Server error" });
     }
   });
 
   return app;
-        }
+}
