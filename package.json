@@ -1,12 +1,13 @@
 {
-  "name": "Telegram Softs Official Bot",
+  "name": "telegram-softs-official-bot",
   "version": "1.2.5",
+  "description": "Telegram Web App Bot with grammY, Express and Prisma",
+  "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "start": "node dist/index.js",
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "grammy": "^1.21.1",
@@ -21,5 +22,8 @@
     "@types/node": "^20.12.7",
     "@types/express": "^4.17.21",
     "prisma": "^5.13.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
