@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stars Premium Buy</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        :root {
+            --tg-theme-bg-color: #f4f5f7;
+            --tg-theme-text-color: #000000;
+            --tg-theme-button-color: #2481cc;
+            --tg-theme-button-text-color: #ffffff;
+            --tg-theme-hint-color: #999999;
+            --blue-gradient: linear-gradient(135deg, #2a75ff, #0044ff);
+            --purple-gradient: linear-gradient(135deg, #b800ff, #6a00ff);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            margin: 0;
+            padding: 0;
+            padding-bottom: 70px;
+            user-select: none;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .balance-badge {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .header-title {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 16px;
+        }
+
+        /* Main Container */
+        .container {
+            padding: 15px;
+        }
+
+        /* Banner */
+        .banner {
+            border-radius: 15px;
+            padding: 25px 15px;
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .banner.stars { background: var(--blue-gradient); }
+        .banner.premium { background: var(--purple-gradient); display: none; }
+        
+        .banner-icon { font-size: 40px; margin-bottom: 5px; }
+        .banner-title { font-size: 24px; font-weight: 800; }
+
+        /* Tabs */
+        .tab-system {
+            display: flex;
+            background: #eef0f3;
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            flex: 1;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            background: transparent;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .tab-btn.active {
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Inputs */
+        .input-group {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .input-label {
+            font-size: 12px;
+            color: var(--tg-theme-hint-color);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .text-input {
+            flex: 1;
+            border: none;
+            background: #f1f3f6;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        /* Items Grid/List */
+        .items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .item-card {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            border: 1px solid transparent;
+        }
+        .item-card.selected {
+            border-color: var(--tg-theme-button-color);
+            background: #f4f9ff;
+        }
+        .item-left { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+        .item-price { font-weight: bold; color: #333; }
+
+        /* Screens switcher */
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 65px;
+            background: white;
+            display: flex;
+            border-top: 1px solid #e5e5e5;
+            z-index: 1000;
+        }
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 11px;
+            color: #8e8e93;
+            text-decoration: none;
+            background: transparent;
+            border: none;
+        }
+        .nav-item.active {
+            color: var(--tg-theme-button-color);
+        }
+        .nav-icon { font-size: 20px; margin-bottom: 2px; }
+
+        /* Stats & Referrals specific styles */
+        .stat-box, .ref-box {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            margin-bottom: 15px;
+        }
+        .rank-list {
+            background: white;
+            border-radius: 12px;
+            padding: 10px;
+        }
+        .rank-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 10px;
+            border-bottom: 1px solid #f1f3f6;
+        }
+        .rank-item:last-child { border: none; }
+
+        /* Profile gradient card */
+        .profile-card {
+            background: linear-gradient(135deg, #2481cc, #1a639b);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-title" id="header-text">Главная</div>
+        <div class="balance-badge">
+            <span id="user-balance">0</span> UZS
+        </div>
+    </div>
+
+    <div id="screen-main" class="screen active">
+        <div class="container">
+            <div class="tab-system">
+                <button class="tab-btn active" onclick="switchProductTab('stars')">Звезды</button>
+                <button class="tab-btn" onclick="switchProductTab('premium')">Премиум</button>
+            </div>
+
+            <div id="banner-stars" class="banner stars">
+                <div class="banner-icon">⭐</div>
+                <div class="banner-title">Telegram Stars</div>
+            </div>
+            <div id="banner-premium" class="banner premium">
+                <div class="banner-icon">🛡️</div>
+                <div class="banner-title">Telegram Premium</div>
+            </div>
+
+            <div class="input-group">
+                <div class="input-label">Имя пользователя Telegram</div>
+                <div class="input-row">
+                    <input type="text" id="target-username" class="text-input" placeholder="@username">
+                </div>
+            </div>
+
+            <div class="items-list" id="products-container">
+                </div>
+        </div>
+    </div>
+
+    <div id="screen-events" class="screen">
+        <div class="container">
+            <div class="stat-box">
+                <div class="input-label">Общая цель продаж</div>
+                <h3 style="margin: 10px 0;">NFT olish uchun 1 200 000 so'm</h3>
+                <div style="background: #eef0f3; height: 8px; border-radius: 4px; overflow:hidden;">
+                    <div style="background: var(--blue-gradient); width: 15%; height: 100%;"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:12px; margin-top:5px; color:#666;">
+                    <span>180 000 so'm</span>
+                    <span>1 200 000 so'm</span>
+                </div>
+            </div>
+
+            <h4 class="input-label">Рейтинг продаж</h4>
+            <div class="rank-list" id="stats-container">
+                <div class="rank-item"><span>🥇 Ахмед 24/7</span><strong>220 000 UZS</strong></div>
+                <div class="rank-item"><span>🥈 Саидазиз</span><strong>110 000 UZS</strong></div>
+                <div class="rank-item"><span>🥉 собиржанов.х</span><strong>55 000 UZS</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-referrals" class="screen">
+        <div class="container">
+            <div class="ref-box">
+                <div style="font-size:40px; margin-bottom:10px;">🔗</div>
+                <h3>Пригласить друзей</h3>
+                <p style="font-size: 14px; color:#666;">За каждого друга вы получаете 100 so'm bonus и 2% от их пополнений.</p>
+                <input type="text" id="ref-link-input" class="text-input" readonly style="text-align:center; margin-bottom:10px; width:90%;">
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-profile" class="screen">
+        <div class="container">
+            <div class="profile-card">
+                <h2 id="profile-name" style="margin:0 0 5px 0;">Пользователь</h2>
+                <div style="font-size:12px; opacity:0.8;">ID: <span id="profile-tg-id"></span></div>
+                <h1 style="margin: 20px 0 10px 0;"><span id="profile-balance">0</span> UZS</h1>
+                <button style="width:100%; padding:12px; border:none; background:white; color:#2481cc; font-weight:bold; border-radius:10px;">Пополнить баланс</button>
+            </div>
+            
+            <h4 class="input-label">История транзакций</h4>
+            <div class="rank-list">
+                <div class="rank-item"><span>Заказ Stars (100)</span><span style="color:green;">Успешно</span></div>
+                <div class="rank-item"><span>Пополнение через чек</span><span style="color:orange;">В обработке</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-item active" onclick="switchScreen('main', this)">
+            <div class="nav-icon">🏠</div>
+            <div>Главная</div>
+        </button>
+        <button class="nav-item" onclick="switchScreen('events', this)">
+            <div class="nav-icon">📅</div>
+            <div>События</div>
+        </button>
+        <button class="nav-item" onclick="switchScreen('referrals', this)">
+            <div class="nav-icon">👥</div>
+            <div>Рефералы</div>
+        </button>
+        <button class="nav-item" onclick="switchScreen('profile', this)">
+            <div class="nav-icon">👤</div>
+            <div>Профиль</div>
+        </button>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Иловани тўлиқ экранда очиш
+
+        let currentTab = 'stars';
+        const dummyProducts = {
+            stars: [
+                { id: 1, name: '50 Stars', price: 11000 },
+                { id: 2, name: '100 Stars', price: 22000 },
+                { id: 3, name: '500 Stars', price: 110000 },
+                { id: 4, name: '1000 Stars', price: 220000 }
+            ],
+            premium: [
+                { id: 5, name: 'Telegram Premium 3 мес.', price: 170000 },
+                { id: 6, name: 'Telegram Premium 6 мес.', price: 225000 },
+                { id: 7, name: 'Telegram Premium 12 мес.', price: 295000 }
+            ]
+        };
+
+        // Экранларни алмаштириш (Нижняя навигация)
+        function switchScreen(screenId, element) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            
+            document.getElementById(`screen-${screenId}`).classList.add('active');
+            element.classList.add('active');
+            
+            const titles = { main: 'Главная', events: 'События', referrals: 'Рефералы', profile: 'Профиль' };
+            document.getElementById('header-text').innerText = titles[screenId];
+        }
+
+        // Звезды / Премиум таблар
+        function switchProductTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if(tab === 'stars') {
+                document.getElementById('banner-stars').style.display = 'block';
+                document.getElementById('banner-premium').style.display = 'none';
+            } else {
+                document.getElementById('banner-stars').style.display = 'none';
+                document.getElementById('banner-premium').style.display = 'block';
+            }
+            renderProducts();
+        }
+
+        // Товарларни рўйхатини чиқариш
+        function renderProducts() {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+            
+            dummyProducts[currentTab].forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.onclick = () => selectProduct(p, card);
+                card.innerHTML = `
+                    <div class="item-left">
+                        <span>${currentTab === 'stars' ? '⭐' : '🛡️'}</span>
+                        <span>${p.name}</span>
+                    </div>
+                    <div class="item-price">${p.price.toLocaleString()} UZS</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Товар танланганда ТГ Главная тугмасини чиқариш
+        function selectProduct(product, element) {
+            document.querySelectorAll('.item-card').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+
+            const username = document.getElementById('target-username').value;
+
+            tg.MainButton.text = `Купить ${product.name} за ${product.price.toLocaleString()} UZS`;
+            tg.MainButton.show();
+            
+            tg.MainButton.onClick(() => {
+                if(!document.getElementById('target-username').value) {
+                    tg.showAlert('Пожалуйста, введите @username получателя!');
+                    return;
+                }
+                tg.showConfirm(`Оформить заказ для ${document.getElementById('target-username').value}?`, (ok) => {
+                    if(ok) {
+                        // Бу ерда сизнинг Express API'нгизга сўров кетади
+                        tg.sendData(JSON.stringify({
+                            action: 'create_order',
+                            productId: product.id,
+                            target: document.getElementById('target-username').value
+                        }));
+                        tg.close();
+                    }
+                });
+            });
+        }
+
+        // Инициализация
+        window.onload = () => {
+            renderProducts();
+            // ТГдан фойдаланувчи маълумотларини олиш
+            if(tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const u = tg.initDataUnsafe.user;
+                document.getElementById('profile-name').innerText = u.first_name + (u.last_name ? ' ' + u.last_name : '');
+                document.getElementById('profile-tg-id').innerText = u.id;
+                document.getElementById('ref-link-input').value = `https://t.me/UzbStarsbuybot?start=${u.id}`;
+            } else {
+                document.getElementById('profile-tg-id').innerText = '12345678';
+                document.getElementById('ref-link-input').value = `https://t.me/UzbStarsbuybot?start=12345678`;
+            }
+        };
+    </script>
+</body>
+</html>
+  
