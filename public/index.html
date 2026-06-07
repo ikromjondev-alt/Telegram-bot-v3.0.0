@@ -670,12 +670,15 @@ function swEn(){
 function confOrd(){
   if(!pprod)return;
   const data={product_id:pprod.id,product_name:pprod.n,price:pprod.p,price_str:pprod.ps,type:ptype,target_username:puname};
-  if(tg?.sendData)tg.sendData(JSON.stringify(data));
-  else{toast('✅ '+pprod.n+' tasdiqlandi');setTimeout(clPay,1500);}
+  if(tg?.sendData){
+    tg.sendData(JSON.stringify(data));
+  } else {
+    toast('✅ '+pprod.n+' tasdiqlandi!');
+    setTimeout(()=>{clPay();rstSw();},1500);
+  }
 }
-
 function swLb(p,el){document.querySelectorAll('.lbt').forEach(t=>t.classList.remove('on'));el.classList.add('on');renLb(p);}
-function topup(){toast('Menejer: @Tadjibaev_i ga yozing');}
+function topup(){const data={action:'topup'};if(tg?.sendData){tg.sendData(JSON.stringify(data));}else{toast('Botga qaytib yozing');}}
 function goSup(){if(tg?.openTelegramLink)tg.openTelegramLink('https://t.me/Tadjibaev_i');else toast('@Tadjibaev_i');}
 function invite(){const l=document.getElementById('rlT').textContent;if(tg?.openTelegramLink)tg.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(l));else{cpRef();}}
 
