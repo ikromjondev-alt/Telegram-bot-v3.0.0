@@ -434,7 +434,7 @@ async function startBot() {
       );
       return;
     }
-
+й
     // Admin approve
     if (data.startsWith('approve:') && uid === ADMIN_ID) {
       const orderId = data.replace('approve:', '');
@@ -454,6 +454,8 @@ async function startBot() {
       return;
     }
 
+
+
     // Admin reject step 1
     if (data.startsWith('reject:') && uid === ADMIN_ID) {
       const orderId = data.replace('reject:', '');
@@ -463,7 +465,6 @@ async function startBot() {
       return;
     }
   });
-
   // ── Messages ───────────────────────────────────────────────
   bot.on('message', async (msg) => {
     const uid   = msg.from!.id;
@@ -486,20 +487,23 @@ async function startBot() {
     // ── ADMIN: reject reason ─────────────────────────────────
     if (uid === ADMIN_ID) {
       const rejectId = adminReject.get(uid);
-      if (rejectId && text && !text.startsWith('/')) {
-        adminReject.delete(uid);
-        const order = getOrder(rejectId);
-        if (!order) { await bot.sendMessage(uid, '❌ Заказ не найден.'); return; }
-        updateOrder(rejectId, { status: 'rejected', admin_comment: text });
-        await bot.sendMessage(uid, `✅ Заказ \`${rejectId}\` отклонён.`, { parse_mode: 'Markdown' });
-        const ul = getLang(order.user_id) as Lang;
-        try {
-          await bot.sendMessage(order.user_id,
-            tr(ul, 'rejected', { product: order.product_name, reason: text }),
-            { parse_mode: 'Markdown', reply_markup: mainKb(ul) }
-          );
-        } catch { /* ignore */ }
-        return;
+      if (rejectId.startsWith('topup:')) {
+          const parts = rejectId.split(':');
+          const amount = parseInt(text.replace(/\D/g, ''), 10);
+          if (isNaN(amount) || amount <= 0) {
+            await bot.sendMessage(uid, '❌ Неверная сумма:');
+            adminReject.set(uid, rejectId);
+            return;
+          }
+          const targetUserId = parseInt(parts[2], 10);
+          addBalance(targetUserId, amount);
+          updateOrder(parts[1], { status: 'approved', admin_comment: String(amount) });
+          await bot.sendMessage(uid, `✅ *${fmt(amount)} сум* зачислено \`${targetUserId}\``, { parse_mode: 'Markdown' });
+          try {
+            const ul = getLang(targetUserId) as Lang;
+            await bot.sendMessage(targetUserId, `✅ *Балансингиз тўлдирилди!*\n\n💰 +*${fmt(amount)} сум*`, { parse_mode: 'Markdown', reply_markup: mainKb(ul) });
+          } catch {}
+          return;
       }
 
       // ADMIN: DM — ввод целевого ID
@@ -544,14 +548,14 @@ async function startBot() {
     if (msg.web_app_data?.data) {
       try {
         const d = JSON.parse(msg.web_app_data.data);
-        setState(uid, {
-          step: 'awaiting_username',
-          productId: d.product_id,
-          productName: d.product_name,
-          price: d.price,
-          targetUsername: d.target_username || undefined,
-        });
-
+        if (d.action === 'topup') {
+          setState(uid, { step: 'awaiting_receipt', productId: 'topup', productName: 'Пополнение баланса', price: 0 });
+          await bot.sendMessage(uid,
+            `💰 *Пополнение баланса*\n\nКарта: \`${CARD_NUMBER}\`\nВладелец: ${CARD_HOLDER}\n\n📸 Любую сумму переведите и пришлите скриншот чека.`,
+            { parse_mode: 'Markdown' }
+          );
+          return;
+        }
         // If target_username already sent from Web App
         if (d.target_username) {
           const cleaned = d.target_username.replace('@', '').trim();
@@ -618,38 +622,24 @@ async function startBot() {
 
       if (!fileId) { await bot.sendMessage(uid, tr(lang, 'sendPhoto')); return; }
 
-      const orderId = newOrderId();
-      createOrder({
-        id: orderId, user_id: uid,
-        product_id: state.productId!,
-        product_name: state.productName!,
-        price: state.price!,
-        target_username: state.targetUsername!,
-      });
-      updateOrder(orderId, { status: 'under_review', receipt_file_id: fileId });
-      setState(uid, { step: 'main_menu' });
-
-      await bot.sendMessage(uid,
-        tr(lang, 'receiptOk', { orderId }),
-        { parse_mode: 'Markdown', reply_markup: mainKb(lang) }
-      );
-
-      const u = getUser(uid);
-      await bot.sendPhoto(ADMIN_ID, fileId, {
-        caption:
-          `🛒 *Новый заказ!*\n\n` +
-          `🆔 \`${orderId}\`\n` +
-          `📦 ${state.productName}\n` +
-          `💰 ${fmt(state.price!)} сум\n` +
-          `👤 Получатель: @${state.targetUsername}\n` +
-          `🧑 ${u?.first_name ?? ''}${u?.username ? ` (@${u.username})` : ''}\n` +
-          `🪪 ID: ${uid}`,
-        parse_mode: 'Markdown',
-        reply_markup: adminKb(orderId),
-      });
-      return;
-    }
-
+    
+      if (state.productId === 'topup') {
+        const topupId = newOrderId();
+        createOrder({ id: topupId, user_id: uid, product_id: 'topup', product_name: 'Пополнение баланса', price: 0, target_username: String(uid) });
+        updateOrder(topupId, { status: 'under_review', receipt_file_id: fileId });
+        setState(uid, { step: 'main_menu' });
+        await bot.sendMessage(uid, `✅ *Чек получен!*\n\n🕐 До 30 минут.\n🆔 \`${topupId}\``, { parse_mode: 'Markdown', reply_markup: mainKb(lang) });
+        const u = getUser(uid);
+        await bot.sendPhoto(ADMIN_ID, fileId, {
+          caption: `💰 *Запрос на пополнение!*\n\n🧑 ${u?.first_name ?? ''}${u?.username ? ` (@${u.username})` : ''}\n🪪 ID: ${uid}\n🆔 \`${topupId}\`\n\nВведите сумму:`,
+          parse_mode: 'Markdown',
+          reply_markup: { inline_keyboard: [[
+            { text: '✅ Подтвердить', callback_data: `topup:${topupId}:${uid}` },
+            { text: '❌ Отклонить',  callback_data: `reject:${topupId}` },
+          ]]},
+        });
+        return;
+      }
     // ── Promo code input ─────────────────────────────────────
     if (state.step === 'awaiting_promo' && text && !text.startsWith('/')) {
       setState(uid, { step: 'main_menu' });
