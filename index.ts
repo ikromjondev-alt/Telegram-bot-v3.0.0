@@ -434,7 +434,7 @@ async function startBot() {
       );
       return;
     }
-й
+
     // Admin approve
     if (data.startsWith('approve:') && uid === ADMIN_ID) {
       const orderId = data.replace('approve:', '');
