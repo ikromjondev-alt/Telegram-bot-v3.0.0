@@ -473,76 +473,77 @@ async function startBot() {
     const text  = msg.text ?? '';
 
     if (isFlood(uid) && uid !== ADMIN_ID) {
-      await bot.sendMessage(uid, tr(lang, 'flood'));
-      return;
-    }
+  await bot.sendMessage(uid, tr(lang, 'flood'));
+  return;
+}
 
-    // ── CANCEL ───────────────────────────────────────────────
-    if (text === '❌ Отмена') {
-      setState(uid, { step: 'main_menu' });
-      await bot.sendMessage(uid, '↩️ Отменено.', { reply_markup: mainKb(lang) });
-      return;
-    }
+// ── CANCEL ───────────────────────────────────────────────
+if (text === '❌ Отмена') {
+  setState(uid, { step: 'main_menu' });
+  await bot.sendMessage(uid, '↩️ Отменено.', { reply_markup: mainKb(lang) });
+  return;
+}
 
-    // ── ADMIN: reject reason ─────────────────────────────────
-    if (uid === ADMIN_ID) {
-      const rejectId = adminReject.get(uid);
-      if (rejectId.startsWith('topup:')) {
-          const parts = rejectId.split(':');
-          const amount = parseInt(text.replace(/\D/g, ''), 10);
-          if (isNaN(amount) || amount <= 0) {
-            await bot.sendMessage(uid, '❌ Неверная сумма:');
-            adminReject.set(uid, rejectId);
-            return;
-          }
-          const targetUserId = parseInt(parts[2], 10);
-          addBalance(targetUserId, amount);
-          updateOrder(parts[1], { status: 'approved', admin_comment: String(amount) });
-          await bot.sendMessage(uid, `✅ *${fmt(amount)} сум* зачислено \`${targetUserId}\``, { parse_mode: 'Markdown' });
-          try {
-            const ul = getLang(targetUserId) as Lang;
-            await bot.sendMessage(targetUserId, `✅ *Балансингиз тўлдирилди!*\n\n💰 +*${fmt(amount)} сум*`, { parse_mode: 'Markdown', reply_markup: mainKb(ul) });
-          } catch {}
-          return;
-      }
-
-      // ADMIN: DM — ввод целевого ID
-      if (state.step === 'awaiting_dm_target' && text && !text.startsWith('/')) {
-        const targetId = parseInt(text.trim(), 10);
-        if (isNaN(targetId)) {
-          await bot.sendMessage(uid, '❌ Неверный ID. Введите числовой Telegram ID:');
-          return;
-        }
-        setState(uid, { step: 'awaiting_dm_text', dmTarget: targetId });
-        await bot.sendMessage(uid,
-          `📨 Теперь введите текст сообщения для пользователя \`${targetId}\`:`,
-          { parse_mode: 'Markdown', reply_markup: cancelKb() }
-        );
+// ── ADMIN: reject reason ─────────────────────────────────
+if (uid === ADMIN_ID) {
+  const rejectId = adminReject.get(uid);
+  if (rejectId && rejectId.startsWith('topup:')) {
+      const parts = rejectId.split(':');
+      const amount = parseInt(text.replace(/\D/g, ''), 10);
+      if (isNaN(amount) || amount <= 0) {
+        await bot.sendMessage(uid, '❌ Неверная сумма:');
+        adminReject.set(uid, rejectId);
         return;
       }
+      const targetUserId = parseInt(parts[2], 10);
+      addBalance(targetUserId, amount);
+      updateOrder(parts[1], { status: 'approved', admin_comment: String(amount) });
+      await bot.sendMessage(uid, `✅ *${fmt(amount)} сум* зачислено \`${targetUserId}\``, { parse_mode: 'Markdown' });
+      try {
+        const ul = getLang(targetUserId) as Lang;
+        await bot.sendMessage(targetUserId, `✅ *Балансингиз тўлдирилди!*\n\n💰 +*${fmt(amount)} сум*`, { parse_mode: 'Markdown', reply_markup: mainKb(ul) });
+      } catch {}
+      return;
+  }
 
-      // ADMIN: DM — ввод текста сообщения
-      if (state.step === 'awaiting_dm_text' && text && !text.startsWith('/')) {
-        const targetId = state.dmTarget!;
-        setState(uid, { step: 'main_menu', dmTarget: undefined });
-        try {
-          await bot.sendMessage(targetId,
-            `📨 *Сообщение от администратора:*\n\n${text}`,
-            { parse_mode: 'Markdown' }
-          );
-          await bot.sendMessage(uid,
-            `✅ Сообщение доставлено пользователю \`${targetId}\`.`,
-            { parse_mode: 'Markdown', reply_markup: { remove_keyboard: true } }
-          );
-        } catch {
-          await bot.sendMessage(uid,
-            `❌ Не удалось доставить. Пользователь \`${targetId}\` заблокировал бота.`,
-            { parse_mode: 'Markdown', reply_markup: { remove_keyboard: true } }
-          );
-        }
-        return;
-      }
-    
+  // ADMIN: DM — ввод целевого ID
+  if (state.step === 'awaiting_dm_target' && text && !text.startsWith('/')) {
+    const targetId = parseInt(text.trim(), 10);
+    if (isNaN(targetId)) {
+      await bot.sendMessage(uid, '❌ Неверный ID. Введите числовой Telegram ID:');
+      return;
+    }
+    setState(uid, { step: 'awaiting_dm_text', dmTarget: targetId });
+    await bot.sendMessage(uid,
+      `📨 Теперь введите текст сообщения для пользователя \`${targetId}\`:`,
+      { parse_mode: 'Markdown', reply_markup: cancelKb() }
+    );
+    return;
+  }
+
+  // ADMIN: DM — ввод текста сообщения
+  if (state.step === 'awaiting_dm_text' && text && !text.startsWith('/')) {
+    const targetId = state.dmTarget!;
+    setState(uid, { step: 'main_menu', dmTarget: undefined });
+    try {
+      await bot.sendMessage(targetId,
+        `📨 *Сообщение от администратора:*\n\n${text}`,
+        { parse_mode: 'Markdown' }
+      );
+      await bot.sendMessage(uid,
+        `✅ Сообщение доставлено пользователю \`${targetId}\`.`,
+        { parse_mode: 'Markdown', reply_markup: { remove_keyboard: true } }
+      );
+    } catch {
+      await bot.sendMessage(uid,
+        `❌ Не удалось доставить. Пользователь \`${targetId}\` заблокировал бота.`,
+        { parse_mode: 'Markdown', reply_markup: { remove_keyboard: true } }
+      );
+    }
+    return;
+  }
+}  
+ 
 
     // ── Web App data ─────────────────────────────────────────
     if (msg.web_app_data?.data) {
