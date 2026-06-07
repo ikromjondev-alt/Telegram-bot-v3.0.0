@@ -542,7 +542,7 @@ async function startBot() {
         }
         return;
       }
-    }
+    
 
     // ── Web App data ─────────────────────────────────────────
     if (msg.web_app_data?.data) {
@@ -640,23 +640,32 @@ async function startBot() {
         });
         return;
       }
-    // ── Promo code input ─────────────────────────────────────
-    if (state.step === 'awaiting_promo' && text && !text.startsWith('/')) {
+
+      const orderId = newOrderId();
+      createOrder({
+        id: orderId, user_id: uid,
+        product_id: state.productId!,
+        product_name: state.productName!,
+        price: state.price!,
+        target_username: state.targetUsername!,
+      });
+      updateOrder(orderId, { status: 'under_review', receipt_file_id: fileId });
       setState(uid, { step: 'main_menu' });
-      const result = usePromo(uid, text.trim());
-      if (result.ok) {
-        await bot.sendMessage(uid,
-          tr(lang, 'promoOk', { bonus: fmt(result.bonus) }),
-          { parse_mode: 'Markdown', reply_markup: mainKb(lang) }
-        );
-      } else {
-        await bot.sendMessage(uid,
-          tr(lang, 'promoFail'),
-          { reply_markup: mainKb(lang) }
-        );
-      }
+      await bot.sendMessage(uid,
+        tr(lang, 'receiptOk', { orderId }),
+        { parse_mode: 'Markdown', reply_markup: mainKb(lang) }
+      );
+      const u = getUser(uid);
+      await bot.sendPhoto(ADMIN_ID, fileId, {
+        caption:
+          `🛒 *Новый заказ!*\n\n🆔 \`${orderId}\`\n📦 ${state.productName}\n💰 ${fmt(state.price!)} сум\n👤 @${state.targetUsername}\n🧑 ${u?.first_name ?? ''}${u?.username ? ` (@${u.username})` : ''}\n🪪 ID: ${uid}`,
+        parse_mode: 'Markdown',
+        reply_markup: adminKb(orderId),
+      });
       return;
     }
+
+    // ── Promo code input}
 
     // ── Menu buttons ─────────────────────────────────────────
     if (text === tr(lang, 'profile')) {
