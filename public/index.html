@@ -667,19 +667,43 @@ function swEn(){
   }else{cx=0;th.style.transform='translateX(0)';tr.style.width='0%';}
 }
 
-function confOrd(){
+async function confOrd(){
   if(!pprod)return;
-  const data={product_id:pprod.id,product_name:pprod.n,price:pprod.p,price_str:pprod.ps,type:ptype,target_username:puname};
-  if(tg?.sendData){
-    tg.sendData(JSON.stringify(data));
-  } else {
-    toast('✅ '+pprod.n+' tasdiqlandi!');
-    setTimeout(()=>{clPay();rstSw();},1500);
+  const th=document.getElementById('swTh');
+  th.textContent='⏳';
+  try {
+    const uid = tg?.initDataUnsafe?.user?.id;
+    if(!uid){ toast('❌ Telegram orqali oching!'); rstSw(); return; }
+    const r = await fetch('/api/order', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        user_id: uid,
+        product_id: pprod.id,
+        product_name: pprod.n,
+        price: pprod.p,
+        price_str: pprod.ps,
+        type: ptype,
+        target_username: puname || '',
+      })
+    });
+    if(r.ok){
+      th.textContent='✅';
+      toast('✅ Buyurtma qabul qilindi! Botni tekshiring');
+      setTimeout(()=>{ if(tg?.close) tg.close(); else clPay(); },2000);
+    } else {
+      toast('❌ Xatolik. Qayta urining');
+      rstSw();
+    }
+  } catch(e){
+    toast('❌ Ulanish xatosi');
+    rstSw();
   }
 }
+  
 function swLb(p,el){document.querySelectorAll('.lbt').forEach(t=>t.classList.remove('on'));el.classList.add('on');renLb(p);}
-function topup(){const data={action:'topup'};if(tg?.sendData){tg.sendData(JSON.stringify(data));}else{toast('Botga qaytib yozing');}}
-function goSup(){if(tg?.openTelegramLink)tg.openTelegramLink('https://t.me/Tadjibaev_i');else toast('@Tadjibaev_i');}
+function topup(){if(tg?.close)tg.close();setTimeout(()=>{if(tg?.openTelegramLink)tg.openTelegramLink('https://t.me/PremiumStore_TopBot?start=topup');},300);}
+function goSup(){if(tg?.openLink)tg.openLink('https://t.me/Tadjibaev_i');else if(tg?.openTelegramLink)tg.openTelegramLink('https://t.me/Tadjibaev_i');} ф
 function invite(){const l=document.getElementById('rlT').textContent;if(tg?.openTelegramLink)tg.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(l));else{cpRef();}}
 
 function toast(m){
