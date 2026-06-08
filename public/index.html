@@ -702,7 +702,13 @@ async function confOrd(){
 }
   
 function swLb(p,el){document.querySelectorAll('.lbt').forEach(t=>t.classList.remove('on'));el.classList.add('on');renLb(p);}
-function topup(){if(tg?.close)tg.close();setTimeout(()=>{if(tg?.openTelegramLink)tg.openTelegramLink('https://t.me/PremiumStore_TopBot?start=topup');},300);}
+function topup(){
+  if(tg?.openTelegramLink){
+    tg.openTelegramLink('https://t.me/PremiumStore_TopBot?start=topup');
+  } else {
+    toast('Botga @PremiumStore_TopBot yozing: /start topup');
+  }
+}
 function goSup(){if(tg?.openLink)tg.openLink('https://t.me/Tadjibaev_i');else if(tg?.openTelegramLink)tg.openTelegramLink('https://t.me/Tadjibaev_i');} ф
 function invite(){const l=document.getElementById('rlT').textContent;if(tg?.openTelegramLink)tg.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(l));else{cpRef();}}
 
