@@ -674,7 +674,7 @@ async function confOrd(){
   try {
     const uid = tg?.initDataUnsafe?.user?.id;
     if(!uid){ toast('❌ Telegram orqali oching!'); rstSw(); return; }
-    const r = await fetch('/api/order', {
+    const r = await fetch('https://telegram-bot-v3-0-0.onrender.com/api/order',
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
