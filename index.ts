@@ -239,6 +239,15 @@ async function startBot() {
       first_name: msg.from!.first_name,
       referred_by: refId && refId !== uid ? refId : undefined,
     });
+    if (match?.[1] === 'topup') {
+      const lang = getLang(uid) as Lang;
+      setState(uid, { step: 'awaiting_receipt', productId: 'topup', productName: 'Пополнение баланса', price: 0 });
+      await bot.sendMessage(uid,
+        `💰 *Пополнение баланса*\n\nКарта: \`${CARD_NUMBER}\`\nВладелец: *${CARD_HOLDER}*\n\n📝 Введите сумму которую хотите пополнить:`,
+        { parse_mode: 'Markdown', reply_markup: { remove_keyboard: true } }
+      );
+      return;
+    }
     setState(uid, { step: 'main_menu' });
     const lang = getLang(uid) as Lang;
     await bot.sendMessage(uid, tr(lang, 'chooseLang'), { reply_markup: langKb() });
