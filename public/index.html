@@ -495,7 +495,7 @@ if(tg){tg.ready();tg.expand();}
 
 async function init(){
   const uid=tg?.initDataUnsafe?.user?.id;
-  if(uid){try{const r=await fetch('/api/user/'+uid);if(r.ok)user=await r.json();}catch(e){}}
+  if(uid){try{const r=await fetch('https://telegram-bot-h5wf.onrender.com/api/user/'+uid);if(r.ok)user=await r.json();}catch(e){}}
   if(!user&&tg?.initDataUnsafe?.user){const u=tg.initDataUnsafe.user;user={id:u.id,first_name:u.first_name,username:u.username,balance:0,refs:0,earned:0};}
   applyU();renS();renP();renFaq();renLb('today');
 }
