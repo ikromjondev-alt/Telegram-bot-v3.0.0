@@ -200,7 +200,6 @@ app.post('/api/order', (req, res) => {
     product_name: product_name,
     price: price || 0,
     target_username: String(user_id),
-    status: 'pending'
   });
   console.log(`✅ Новый заказ #${orderId} от user ${user_id}: ${product_name}`);
   // опционально: уведомить админа через bot
