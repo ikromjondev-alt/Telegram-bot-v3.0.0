@@ -1,723 +1,312 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-<title>Telegram Softs Bot</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Telegram Softs — Stars & Premium</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
-:root{
-  --bg:#0a0a12;--card:#12121e;--card2:#1a1a2e;--border:rgba(255,255,255,0.08);
-  --text:#fff;--t2:rgba(255,255,255,0.55);--t3:rgba(255,255,255,0.3);
-  --cyan:#00d4ff;--purple:#8b5cf6;--yellow:#f59e0b;--green:#10b981;
-  --pink:#ec4899;--orange:#f97316;
-}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;height:100%;overflow:hidden;}
-#app{display:flex;flex-direction:column;height:100vh;}
-
-/* TOPBAR */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:11px 15px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0;}
-.tbl{display:flex;align-items:center;gap:9px;}
-.tbl-ico{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--yellow),var(--purple));display:flex;align-items:center;justify-content:center;font-size:17px;}
-.tbl-name{font-size:15px;font-weight:800;letter-spacing:1px;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.tbr{display:flex;align-items:center;gap:7px;}
-.tb-u{padding:5px 11px;border-radius:18px;background:rgba(255,255,255,0.08);border:1px solid var(--border);font-size:12px;color:var(--t2);}
-.tb-v{padding:5px 13px;border-radius:18px;background:linear-gradient(135deg,var(--cyan),#0099cc);font-size:12px;font-weight:700;color:#000;cursor:pointer;}
-
-/* PAGES */
-.pages{flex:1;overflow:hidden;}
-.page{display:none;height:100%;overflow-y:auto;padding-bottom:74px;}
-.page.active{display:block;}
-.page::-webkit-scrollbar{display:none;}
-
-/* BOTTOM NAV */
-.bnav{display:flex;background:var(--card);border-top:1px solid var(--border);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,0);}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;padding:9px 4px 7px;cursor:pointer;position:relative;transition:all 0.2s;}
-.ni.on .nico{opacity:1;filter:brightness(10);}
-.ni.on .nlbl{color:var(--cyan);}
-.ni.on::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:var(--cyan);border-radius:1px;}
-.nico{font-size:21px;opacity:0.38;transition:all 0.2s;}
-.nlbl{font-size:9px;font-weight:600;color:var(--t3);margin-top:2px;letter-spacing:.4px;text-transform:uppercase;}
-
-/* MAIN TABS */
-.mtabs{display:flex;margin:13px 13px 0;background:rgba(255,255,255,0.05);border-radius:13px;padding:4px;border:1px solid var(--border);position:relative;}
-.mts{position:absolute;top:4px;left:4px;width:calc(50% - 4px);height:calc(100% - 8px);border-radius:9px;transition:transform 0.3s cubic-bezier(.4,0,.2,1);z-index:0;}
-.mts.s{background:linear-gradient(135deg,#b45309,rgba(245,158,11,.5));box-shadow:0 0 14px rgba(245,158,11,.3);}
-.mts.p{background:linear-gradient(135deg,#5b21b6,rgba(139,92,246,.5));box-shadow:0 0 14px rgba(139,92,246,.3);transform:translateX(100%);}
-.mtb{flex:1;padding:10px;text-align:center;font-size:13px;font-weight:700;cursor:pointer;position:relative;z-index:1;transition:color .3s;user-select:none;}
-.mtb.on.s{color:var(--yellow);}
-.mtb.on.p{color:#a78bfa;}
-.mtb:not(.on){color:var(--t3);}
-
-/* PRODUCT CARD */
-.pcard{display:flex;align-items:center;background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:13px 15px;margin:7px 13px 0;cursor:pointer;transition:all .18s;position:relative;overflow:hidden;}
-.pcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
-.pcard.s::before{background:linear-gradient(180deg,var(--yellow),var(--orange));}
-.pcard.p::before{background:linear-gradient(180deg,var(--cyan),var(--purple));}
-.pcard.sel.s{border-color:var(--yellow);background:rgba(245,158,11,.07);}
-.pcard.sel.p{border-color:var(--purple);background:rgba(139,92,246,.07);}
-.pcard:active{transform:scale(.98);}
-.pc-ic{font-size:21px;margin-right:11px;flex-shrink:0;pointer-events:none;}
-.pc-in{flex:1;pointer-events:none;}
-.pc-n{font-size:15px;font-weight:700;}
-.pc-s{font-size:11px;color:var(--t2);margin-top:2px;}
-.pc-r{display:flex;flex-direction:column;align-items:flex-end;gap:4px;pointer-events:none;}
-.pc-p{font-size:14px;font-weight:700;}
-.pc-p.s{color:var(--yellow);}
-.pc-p.p{color:#a78bfa;}
-.pc-d{font-size:10px;font-weight:700;padding:2px 6px;border-radius:5px;background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.25);}
-
-.slbl{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--t3);padding:13px 13px 0;}
-.showmore{text-align:center;padding:11px;color:var(--cyan);font-size:12px;font-weight:600;cursor:pointer;border:1px dashed rgba(0,212,255,.2);border-radius:11px;margin:7px 13px 0;}
-
-/* USERNAME */
-.usec{padding:13px 13px 0;}
-.ulbl{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--t3);margin-bottom:7px;}
-.urow{display:flex;gap:7px;}
-.uinp{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:11px;padding:11px 13px;color:var(--text);font-size:14px;outline:none;font-family:'Inter',sans-serif;transition:border-color .2s;}
-.uinp:focus{border-color:var(--cyan);}
-.uinp::placeholder{color:var(--t3);}
-.ubtn{padding:11px 11px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:11px;color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
-.ubtn.on{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,255,.08);}
-
-/* BUY BTN */
-.bwrap{padding:13px;}
-.bbtn{width:100%;padding:14px;border-radius:13px;border:none;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;}
-.bbtn.s{background:linear-gradient(135deg,var(--yellow),var(--orange));color:#000;box-shadow:0 0 18px rgba(245,158,11,.35);}
-.bbtn.p{background:linear-gradient(135deg,var(--purple),#4c1d95);color:#fff;box-shadow:0 0 18px rgba(139,92,246,.35);}
-.bbtn:active{transform:scale(.97);}
-.bbtn:disabled{opacity:.3;cursor:not-allowed;transform:none;box-shadow:none;}
-
-/* PROFILE */
-.pf-hero{margin:13px;background:var(--card2);border:1px solid var(--border);border-radius:18px;padding:18px;text-align:center;}
-.pf-av{width:70px;height:70px;border-radius:50%;margin:0 auto 11px;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 0 18px rgba(0,212,255,.25);}
-.pf-nm{font-size:19px;font-weight:800;}
-.pf-un{font-size:13px;color:var(--t2);margin-top:2px;}
-.pf-id{font-size:10px;letter-spacing:2px;color:var(--t3);margin-top:3px;text-transform:uppercase;}
-.bal-c{margin:0 13px 13px;border-radius:17px;padding:18px;position:relative;overflow:hidden;background:linear-gradient(135deg,#1a237e,#283593,#1565c0);box-shadow:0 6px 28px rgba(26,35,126,.5);}
-.bal-c::after{content:'';position:absolute;top:-20px;right:-20px;width:95px;height:95px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none;}
-.bal-l{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.5);}
-.bal-a{font-size:28px;font-weight:900;color:#fff;margin:3px 0 14px;}
-.bal-i{position:absolute;top:18px;right:18px;font-size:24px;opacity:.3;}
-.btn-tp{width:100%;padding:11px;background:rgba(255,255,255,.15);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;}
-.ht{font-size:15px;font-weight:700;padding:4px 13px 9px;}
-.hitem{display:flex;align-items:center;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px 13px;margin:0 13px 7px;cursor:pointer;}
-.hitem:active{transform:scale(.98);}
-.hic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;margin-right:11px;flex-shrink:0;}
-.hic.a{background:rgba(139,92,246,.2);}
-.hic.b{background:rgba(245,158,11,.2);}
-.hic.c{background:rgba(0,212,255,.2);}
-.hic.d{background:rgba(236,72,153,.2);}
-.hin-t{font-size:14px;font-weight:600;}
-.hin-s{font-size:11px;color:var(--t2);margin-top:1px;}
-.harr{font-size:15px;color:var(--t3);margin-left:auto;}
-
-/* REFERRALS */
-.ref-h{margin:13px;background:var(--card2);border:1px solid var(--border);border-radius:18px;padding:20px;text-align:center;}
-.ref-ic{width:58px;height:58px;border-radius:50%;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 13px;}
-.ref-t{font-size:19px;font-weight:800;margin-bottom:7px;}
-.ref-d{font-size:13px;color:var(--t2);line-height:1.6;}
-.ref-d strong{color:var(--cyan);}
-.ref-lb{margin:0 13px 9px;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:11px 13px;display:flex;align-items:center;gap:9px;}
-.rlt{flex:1;font-size:12px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.rlc{font-size:17px;cursor:pointer;color:var(--cyan);}
-.btn-inv{display:block;margin:0 13px 13px;padding:14px;width:calc(100% - 26px);background:linear-gradient(135deg,#1a3a8f,#1565c0);border:none;border-radius:13px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;text-align:center;}
-.ref-sts{display:flex;gap:9px;margin:0 13px 13px;}
-.rst{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;}
-.rsi{font-size:21px;margin-bottom:5px;}
-.rsn{font-size:21px;font-weight:800;}
-.rss{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--t3);margin-top:3px;}
-
-/* EVENTS */
-.ev-c{margin:13px 13px 0;background:var(--card2);border:1px solid var(--border);border-radius:17px;padding:15px;}
-.ev-top{display:flex;align-items:center;gap:11px;margin-bottom:13px;}
-.ev-ic{width:44px;height:44px;border-radius:12px;background:rgba(245,158,11,.15);display:flex;align-items:center;justify-content:center;font-size:21px;}
-.ev-tt{font-size:15px;font-weight:700;}
-.ev-ss{font-size:11px;color:var(--t2);margin-top:1px;}
-.prog{background:rgba(255,255,255,.08);border-radius:5px;height:7px;overflow:hidden;margin-bottom:7px;}
-.progf{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--purple),var(--cyan));width:4%;}
-.prog-row{display:flex;justify-content:space-between;font-size:11px;color:var(--t2);}
-.lbtabs{display:flex;gap:6px;padding:13px 13px 0;}
-.lbt{padding:6px 13px;border-radius:17px;border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;color:var(--t2);}
-.lbt.on{background:var(--cyan);color:#000;border-color:var(--cyan);}
-.lbi{display:flex;align-items:center;background:var(--card2);border:1px solid var(--border);border-radius:11px;padding:10px 12px;margin:6px 13px 0;}
-.lbr{font-size:12px;font-weight:700;width:26px;color:var(--t3);}
-.lbr.g{color:#ffd700;}.lbr.s{color:#c0c0c0;}.lbr.b{color:#cd7f32;}
-.lbn{flex:1;font-size:14px;font-weight:600;padding:0 8px;}
-.lba{font-size:12px;font-weight:700;color:var(--green);}
-
-/* FAQ */
-.faqhd{padding:15px 13px 7px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);}
-.fi{margin:0 13px 7px;background:var(--card2);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
-.fiq{display:flex;align-items:center;justify-content:space-between;padding:13px;cursor:pointer;}
-.fit{font-size:14px;font-weight:600;flex:1;padding-right:9px;}
-.fiarr{font-size:12px;color:var(--t3);transition:transform .2s;}
-.fi.open .fiarr{transform:rotate(180deg);}
-.fia{display:none;font-size:13px;color:var(--t2);line-height:1.6;border-top:1px solid var(--border);padding:11px 13px 13px;}
-.fi.open .fia{display:block;}
-
-/* ═══ PAYMENT FULL PAGE ═══ */
-#payPage{display:none;position:fixed;inset:0;z-index:100;background:var(--bg);overflow-y:auto;}
-#payPage.open{display:block;}
-#payPage::-webkit-scrollbar{display:none;}
-
-.pay-hdr{display:flex;align-items:center;justify-content:space-between;padding:11px 15px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;}
-.pay-back{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;color:var(--text);}
-.pay-mid{display:flex;align-items:center;gap:8px;}
-.pay-mid-ic{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--yellow),var(--purple));display:flex;align-items:center;justify-content:center;font-size:13px;}
-.pay-mid-n{font-size:13px;font-weight:800;letter-spacing:1px;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.pay-ubadge{padding:5px 11px;border-radius:15px;background:rgba(255,255,255,.07);border:1px solid var(--border);font-size:12px;color:var(--t2);}
-
-/* Hero */
-.pay-hero{margin:13px;border-radius:18px;padding:18px;position:relative;overflow:hidden;}
-.pay-hero.s{background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);border:1px solid rgba(245,158,11,.2);}
-.pay-hero.p{background:linear-gradient(135deg,#1a0533,#2d1b69,#1a1a3e);border:1px solid rgba(139,92,246,.2);}
-.pay-hero::before{content:'';position:absolute;top:-25px;right:-25px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.03);pointer-events:none;}
-.ph-bdg{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:11px;}
-.ph-bdg.s{background:rgba(245,158,11,.2);color:var(--yellow);border:1px solid rgba(245,158,11,.3);}
-.ph-bdg.p{background:rgba(139,92,246,.2);color:#a78bfa;border:1px solid rgba(139,92,246,.3);}
-.ph-ic{font-size:34px;margin-bottom:7px;display:block;}
-.ph-tt{font-size:21px;font-weight:900;margin-bottom:5px;}
-.ph-ord{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:7px;background:rgba(255,255,255,.08);font-size:11px;color:var(--t2);}
-.ph-pbox{margin-top:13px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;}
-.ph-pl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--t2);}
-.ph-pa{font-size:26px;font-weight:900;}
-.ph-pa.s{color:var(--yellow);}
-.ph-pa.p{color:#a78bfa;}
-.ph-pc{font-size:13px;color:var(--t2);margin-left:3px;font-weight:400;}
-
-/* Section label */
-.psl{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--t3);padding:0 13px;margin:4px 0;}
-.psl::before{content:'○';font-size:7px;}
-
-/* Req card */
-.req-c{margin:0 13px 9px;background:var(--card2);border-radius:13px;overflow:hidden;border:1px solid var(--border);}
-.req-r{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--border);}
-.req-r:last-child{border-bottom:none;}
-.req-sl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--t3);margin-bottom:3px;display:flex;align-items:center;gap:4px;}
-.req-v{font-size:16px;font-weight:700;}
-.cpill{padding:6px 13px;border-radius:18px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;}
-.cpill.c{background:rgba(0,212,255,.15);color:var(--cyan);border:1px solid rgba(0,212,255,.3);}
-.cpill.y{background:rgba(245,158,11,.15);color:var(--yellow);border:1px solid rgba(245,158,11,.3);}
-.cpill:active{transform:scale(.92);}
-
-.recv-r{margin:0 13px 13px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:11px;padding:11px 15px;display:flex;align-items:center;justify-content:space-between;}
-.recv-l{font-size:12px;color:var(--t2);}
-.recv-v{font-size:14px;font-weight:600;}
-
-/* Steps */
-.steps-c{margin:0 13px 9px;background:var(--card2);border:1px solid var(--border);border-radius:13px;overflow:hidden;}
-.step-r{display:flex;align-items:flex-start;gap:13px;padding:13px 15px;border-bottom:1px solid var(--border);}
-.step-r:last-child{border-bottom:none;}
-.snum{width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;margin-top:1px;}
-.snum.n1{background:var(--cyan);color:#000;}
-.snum.n2{background:var(--purple);color:#fff;}
-.snum.n3{background:var(--orange);color:#000;}
-.snum.n4{background:var(--green);color:#000;}
-.stxt b{font-size:14px;font-weight:700;}
-.stxt p{font-size:12px;color:var(--t2);margin-top:2px;line-height:1.5;}
-
-/* Warning */
-.warn{margin:0 13px 13px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:12px 13px;display:flex;gap:9px;align-items:flex-start;}
-.warn-i{font-size:17px;flex-shrink:0;margin-top:1px;}
-.warn-t{font-size:13px;color:rgba(255,255,255,.8);line-height:1.5;}
-.warn-t strong{color:var(--yellow);}
-
-/* Support */
-.sup-c{margin:0 13px 13px;background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(236,72,153,.08));border:1px solid rgba(139,92,246,.2);border-radius:13px;padding:15px;}
-.sup-top{display:flex;align-items:center;gap:11px;margin-bottom:11px;}
-.sup-ic{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,var(--purple),var(--pink));display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
-.sup-nm{font-size:14px;font-weight:700;}
-.sup-sb{font-size:11px;color:var(--t2);margin-top:1px;}
-.sup-on{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--green);margin-left:auto;}
-.sup-on::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);}
-.sup-d{font-size:13px;color:var(--t2);line-height:1.5;margin-bottom:11px;}
-.sup-d strong{color:var(--text);font-weight:700;}
-.btn-sup{width:100%;padding:12px;border-radius:11px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--orange),var(--pink));color:#fff;display:flex;align-items:center;justify-content:center;gap:5px;}
-
-/* SWIPE */
-.swbar{position:fixed;bottom:0;left:0;right:0;padding:10px 15px 20px;background:linear-gradient(transparent,var(--bg) 38%);z-index:20;}
-.swwrap{position:relative;height:56px;border-radius:28px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);overflow:hidden;user-select:none;touch-action:none;}
-.swtr{position:absolute;inset:0;border-radius:28px;width:0%;}
-.swtr.s{background:linear-gradient(90deg,rgba(245,158,11,.35),rgba(249,115,22,.15));}
-.swtr.p{background:linear-gradient(90deg,rgba(0,212,255,.3),rgba(139,92,246,.15));}
-.swth{position:absolute;left:3px;top:3px;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:grab;z-index:2;will-change:transform;font-weight:900;}
-.swth.s{background:linear-gradient(135deg,var(--yellow),var(--orange));box-shadow:0 0 14px rgba(245,158,11,.5);}
-.swth.p{background:linear-gradient(135deg,var(--cyan),var(--purple));box-shadow:0 0 14px rgba(0,212,255,.4);}
-.swth:active{cursor:grabbing;}
-.swlbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--t3);letter-spacing:2px;pointer-events:none;padding-left:62px;text-transform:uppercase;}
-.swarr{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:20px;color:var(--t3);opacity:.4;animation:blink 1.5s ease-in-out infinite;}
-@keyframes blink{0%,100%{opacity:.2}50%{opacity:.6}}
-
-/* TOAST */
-.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--card2);border:1px solid rgba(0,212,255,.3);color:#fff;padding:8px 16px;border-radius:14px;font-size:13px;opacity:0;transition:all .25s;pointer-events:none;z-index:500;white-space:nowrap;}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    background: #0b0b12;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    padding: 20px 16px 90px;
+    color: #fff;
+  }
+  .section-title {
+    font-size: 26px;
+    font-weight: 700;
+    margin: 24px 0 16px 0;
+    background: linear-gradient(135deg, #fff, #b0b0ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    padding-left: 4px;
+  }
+  .card {
+    background: rgba(22, 22, 32, 0.8);
+    backdrop-filter: blur(4px);
+    border-radius: 28px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.4);
+    transition: 0.1s;
+  }
+  .card:active {
+    transform: scale(0.98);
+    background: #20202c;
+  }
+  .card-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .icon-circle {
+    width: 54px;
+    height: 54px;
+    background: #1e1e2c;
+    border-radius: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.05), 0 6px 12px rgba(0,0,0,0.3);
+  }
+  .info h3 {
+    font-size: 17px;
+    font-weight: 600;
+  }
+  .price {
+    font-size: 17px;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+  .price-star {
+    color: #f5b042;
+  }
+  .price-premium {
+    color: #e2aaff;
+  }
+  .badge {
+    font-size: 11px;
+    background: rgba(245,176,66,0.15);
+    padding: 3px 10px;
+    border-radius: 40px;
+    display: inline-block;
+    margin-top: 4px;
+    color: #f5b042;
+  }
+  .buy-btn {
+    background: #2a2a36;
+    border: none;
+    border-radius: 40px;
+    padding: 10px 24px;
+    font-weight: 700;
+    font-size: 14px;
+    color: #eee;
+    cursor: pointer;
+    transition: 0.1s;
+  }
+  .buy-btn:active {
+    transform: scale(0.94);
+    background: #3a3a4a;
+    color: white;
+  }
+  .bottom-nav {
+    position: fixed;
+    bottom: 14px;
+    left: 16px;
+    right: 16px;
+    background: rgba(20,20,28,0.92);
+    backdrop-filter: blur(20px);
+    border-radius: 48px;
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #8a8aa0;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 40px;
+    transition: 0.1s;
+  }
+  .nav-item.active {
+    background: #2e2e3c;
+    color: #f5b042;
+  }
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2a2a36;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 40px;
+    font-size: 13px;
+    z-index: 1000;
+    pointer-events: none;
+    opacity: 0;
+    transition: 0.2s;
+  }
+  .toast.show {
+    opacity: 1;
+  }
 </style>
 </head>
 <body>
-<div id="app">
 
-  <div class="topbar">
-    <div class="tbl">
-      <div class="tbl-ico">⚡</div>
-      <div class="tbl-name">SOFTS</div>
-    </div>
-    <div class="tbr">
-      <div class="tb-u" id="tbU">@username</div>
-      <div class="tb-v">✦ Verify</div>
-    </div>
-  </div>
+<div class="section-title">⭐ Звёзды</div>
+<div id="starsList"></div>
 
-  <div class="pages">
+<div class="section-title">💎 Премиум</div>
+<div id="premiumList"></div>
 
-    <!-- HOME -->
-    <div class="page active" id="pgHome">
-      <div class="mtabs">
-        <div class="mts s" id="mts"></div>
-        <div class="mtb on s" id="mbS" onclick="swMain('s')">⭐ Звёзды</div>
-        <div class="mtb p"   id="mbP" onclick="swMain('p')">💎 Премиум</div>
-      </div>
-      <div id="panS">
-        <div class="usec">
-          <div class="ulbl">Имя пользователя Telegram</div>
-          <div class="urow">
-            <input class="uinp" id="uiS" type="text" placeholder="@username"/>
-            <button class="ubtn" id="ubS" onclick="setMe('s')">O'zimga</button>
-          </div>
-        </div>
-        <div class="slbl">ЗВЁЗДЫ</div>
-        <div id="lstS"></div>
-        <div class="showmore" id="morS" onclick="togMore()">Ещё ▼</div>
-        <div class="bwrap"><button class="bbtn s" id="buyS" onclick="opPay('s')" disabled>Выбрать товар</button></div>
-      </div>
-      <div id="panP" style="display:none">
-        <div class="usec">
-          <div class="ulbl">Имя пользователя Telegram</div>
-          <div class="urow">
-            <input class="uinp" id="uiP" type="text" placeholder="@username"/>
-            <button class="ubtn" id="ubP" onclick="setMe('p')">O'zimga</button>
-          </div>
-        </div>
-        <div class="slbl">ПРЕМИУМ</div>
-        <div id="lstP"></div>
-        <div class="bwrap"><button class="bbtn p" id="buyP" onclick="opPay('p')" disabled>Выбрать товар</button></div>
-      </div>
-    </div>
-
-    <!-- EVENTS -->
-    <div class="page" id="pgEvents">
-      <div class="ev-c">
-        <div class="ev-top">
-          <div class="ev-ic">🎁</div>
-          <div><div class="ev-tt">Umumiy savdo maqsadi</div><div class="ev-ss">NFT olish uchun 1 200 000 so'm</div></div>
-        </div>
-        <div class="prog"><div class="progf"></div></div>
-        <div class="prog-row"><span>55 000 so'm</span><span>1 200 000 so'm</span></div>
-      </div>
-      <div class="lbtabs">
-        <div class="lbt on" onclick="swLb('today',this)">Bugun</div>
-        <div class="lbt" onclick="swLb('week',this)">Bu hafta</div>
-        <div class="lbt" onclick="swLb('month',this)">Bu oy</div>
-      </div>
-      <div id="lbL"></div>
-    </div>
-
-    <!-- MARKET/FAQ -->
-    <div class="page" id="pgMarket">
-      <div class="faqhd">FAQ — SAVOL VA JAVOBLAR</div>
-      <div id="faqL"></div>
-    </div>
-
-    <!-- PROFILE -->
-    <div class="page" id="pgProfile">
-      <div class="pf-hero">
-        <div class="pf-av">👤</div>
-        <div class="pf-nm" id="pfN">—</div>
-        <div class="pf-un" id="pfU2">—</div>
-        <div class="pf-id" id="pfI">TELEGRAM ID: —</div>
-      </div>
-      <div class="bal-c">
-        <div class="bal-l">БАЛАНС</div>
-        <div class="bal-a" id="pfB">0 UZS</div>
-        <div class="bal-i">💳</div>
-        <button class="btn-tp" onclick="topup()">Пополнить / To'ldirish</button>
-      </div>
-      <div class="ht">История транзакций</div>
-      <div class="hitem"><div class="hic a">💳</div><div><div class="hin-t">Платежи</div><div class="hin-s">Пополнения и переводы</div></div><div class="harr">›</div></div>
-      <div class="hitem"><div class="hic b">⭐</div><div><div class="hin-t">Заказы Stars</div><div class="hin-s" id="sOC">0 заказ(ов)</div></div><div class="harr">›</div></div>
-      <div class="hitem"><div class="hic c">💎</div><div><div class="hin-t">Premium</div><div class="hin-s">Пока нет заказов</div></div><div class="harr">›</div></div>
-      <div class="hitem"><div class="hic d">🎁</div><div><div class="hin-t">Подарки</div><div class="hin-s">Пока нет заказов подарков</div></div><div class="harr">›</div></div>
-    </div>
-
-    <!-- REFERRALS -->
-    <div class="page" id="pgRef">
-      <div class="ref-h">
-        <div class="ref-ic">🔗</div>
-        <div class="ref-t">Do'stlarni taklif qiling</div>
-        <div class="ref-d">Havolangizdan yangi do'stingiz tashrif buyursa <strong>+3 000 UZS</strong> bonus olasiz va ularning har bir xarididan <strong>3%</strong> cashback olasiz.</div>
-      </div>
-      <div class="ref-lb">
-        <div class="rlt" id="rlT">https://t.me/bot?start=...</div>
-        <span class="rlc" onclick="cpRef()">⧉</span>
-      </div>
-      <button class="btn-inv" onclick="invite()">👥 Do'stlarni taklif qilish</button>
-      <div class="ref-sts">
-        <div class="rst"><div class="rsi">👥</div><div class="rsn" id="rCnt">0</div><div class="rss">ТАКЛИФЛАР</div></div>
-        <div class="rst"><div class="rsi">🏆</div><div class="rsn" id="rEarn">0</div><div class="rss">МУКОФОТ</div></div>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="bnav">
-    <div class="ni" onclick="nav('pgRef','РЕФЕРАЛЫ',this)"><div class="nico">👥</div><div class="nlbl">Рефералы</div></div>
-    <div class="ni" onclick="nav('pgEvents','СОБЫТИЯ',this)"><div class="nico">📅</div><div class="nlbl">События</div></div>
-    <div class="ni on" onclick="nav('pgHome','ГЛАВНАЯ',this)"><div class="nico">🏠</div><div class="nlbl">Главная</div></div>
-    <div class="ni" onclick="nav('pgMarket','МАРКЕТ',this)"><div class="nico">🛒</div><div class="nlbl">Маркет</div></div>
-    <div class="ni" onclick="nav('pgProfile','ПРОФИЛЬ',this)"><div class="nico">👤</div><div class="nlbl">Профиль</div></div>
-  </div>
+<div class="bottom-nav">
+  <div class="nav-item" onclick="navClick('ref')">👥 Рефералы</div>
+  <div class="nav-item" onclick="navClick('events')">📅 События</div>
+  <div class="nav-item active" onclick="navClick('home')">🏠 Главная</div>
+  <div class="nav-item" onclick="navClick('market')">🛒 Маркет</div>
+  <div class="nav-item" onclick="navClick('profile')">👤 Профиль</div>
 </div>
 
-<!-- PAYMENT PAGE -->
-<div id="payPage">
-  <div class="pay-hdr">
-    <div class="pay-back" onclick="clPay()">‹</div>
-    <div class="pay-mid"><div class="pay-mid-ic">⚡</div><div class="pay-mid-n">SOFTS</div></div>
-    <div class="pay-ubadge" id="payUB">@username</div>
-  </div>
-
-  <div class="pay-hero s" id="payH">
-    <div class="ph-bdg s" id="phB">🔥 ЭКСКЛЮЗИВНО</div>
-    <div class="ph-ic" id="phI">🚀</div>
-    <div class="ph-tt" id="phT">Premium 3 месяца</div>
-    <div class="ph-ord" id="phO">💳 C0001</div>
-    <div class="ph-pbox">
-      <div class="ph-pl">К ОПЛАТЕ</div>
-      <div><span class="ph-pa s" id="phA">180.000</span><span class="ph-pc">СУМ</span></div>
-    </div>
-  </div>
-
-  <div class="psl">РЕКВИЗИТЫ ДЛЯ ОПЛАТЫ</div>
-  <div class="req-c">
-    <div class="req-r">
-      <div><div class="req-sl">💳 НОМЕР КАРТЫ · UZCARD</div><div class="req-v" id="rCard">5614 6821 1076 2236</div></div>
-      <button class="cpill c" onclick="cpCard()">COPY</button>
-    </div>
-    <div class="req-r">
-      <div><div class="req-sl">💵 ТОЧНАЯ СУММА ПЕРЕВОДА</div><div class="req-v" id="rAmt">180.000 сум</div></div>
-      <button class="cpill y" onclick="cpAmt()">COPY</button>
-    </div>
-  </div>
-  <div class="recv-r"><div class="recv-l">Получатель</div><div class="recv-v">I. Tojiboyev</div></div>
-
-  <div class="psl">КАК ОПЛАТИТЬ</div>
-  <div class="steps-c">
-    <div class="step-r"><div class="snum n1">1</div><div class="stxt"><b>Скопируйте</b> номер карты и точную сумму выше</div></div>
-    <div class="step-r"><div class="snum n2">2</div><div class="stxt"><b>Переведите</b> деньги через банковское приложение</div></div>
-    <div class="step-r"><div class="snum n3">3</div><div class="stxt"><b>Сделайте скриншот</b> успешного чека</div></div>
-    <div class="step-r"><div class="snum n4">4</div><div class="stxt"><b>Отправьте скриншот</b> боту — подтвердим в течение 5 минут</div></div>
-  </div>
-
-  <div class="warn"><div class="warn-i">⚠️</div><div class="warn-t">Переводите <strong>точную сумму</strong>. Иначе платёж не пройдёт проверку.</div></div>
-
-  <div class="psl">ТЕХНИЧЕСКАЯ ПОДДЕРЖКА</div>
-  <div class="sup-c">
-    <div class="sup-top">
-      <div class="sup-ic">🎧</div>
-      <div><div class="sup-nm">Telegram Softs Support</div><div class="sup-sb">Техническая поддержка · Softs</div></div>
-      <div class="sup-on">Online</div>
-    </div>
-    <div class="sup-d">Возникли вопросы по заказу? <strong>Напишите нам</strong> — отвечаем быстро, 7 дней в неделю.</div>
-    <button class="btn-sup" onclick="goSup()">✦ Написать в поддержку</button>
-  </div>
-
-  <div style="height:82px"></div>
-
-  <div class="swbar">
-    <div class="swwrap" id="swW">
-      <div class="swtr s" id="swTr"></div>
-      <div class="swth s" id="swTh">›</div>
-      <div class="swlbl">ПРОВЕСТИ ДЛЯ ОПЛАТЫ</div>
-      <div class="swarr">›</div>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="tst"></div>
+<div id="toast" class="toast"></div>
 
 <script>
-const SP=[
-  {id:'s_50',  n:'50 Stars',    ic:'⭐',p:13000, ps:'13 000', v:true },
-  {id:'s_100', n:'100 Stars',   ic:'⭐',p:24000, ps:'24 000', v:true },
-  {id:'s_150', n:'150 Stars',   ic:'⭐',p:36000, ps:'36 000', v:true },
-  {id:'s_250', n:'250 Stars',   ic:'🌟',p:60000, ps:'60 000', v:true },
-  {id:'s_350', n:'350 Stars',   ic:'🌟',p:84000, ps:'84 000', v:true },
-  {id:'s_500', n:'500 Stars',   ic:'💫',p:120000,ps:'120 000',v:true },
-  {id:'s_750', n:'750 Stars',   ic:'💫',p:180000,ps:'180 000',v:false},
-  {id:'s_1000',n:'1 000 Stars', ic:'🔥',p:240000,ps:'240 000',v:false},
-  {id:'s_1500',n:'1 500 Stars', ic:'🔥',p:360000,ps:'360 000',v:false},
-  {id:'s_2500',n:'2 500 Stars', ic:'💥',p:600000,ps:'600 000',v:false},
-  {id:'s_5000',n:'5 000 Stars', ic:'🚀',p:1200000,ps:'1 200 000',v:false},
-  {id:'s_10000',n:'10 000 Stars',ic:'🚀',p:2400000,ps:'2 400 000',v:false},
-  {id:'s_25000',n:'25 000 Stars',ic:'💎',p:6000000,ps:'6 000 000',v:false},
-  {id:'s_35000',n:'35 000 Stars',ic:'💎',p:8400000,ps:'8 400 000',v:false},
-  {id:'s_50000',n:'50 000 Stars',ic:'👑',p:12000000,ps:'12 000 000',v:false},
-];
-const PP=[
-  {id:'p_1m', n:'Premium 1 oy', ic:'🚀',p:40000, ps:'40 000', sub:'1 oylik — kirish orqali',disc:null},
-  {id:'p_3m', n:'Premium 3 oy', ic:'💎',p:180000,ps:'180 000',sub:'3 oylik Premium',disc:'-10%'},
-  {id:'p_6m', n:'Premium 6 oy', ic:'👑',p:225000,ps:'225 000',sub:'6 oylik — 15% tejam',disc:'-15%'},
-  {id:'p_12m',n:'Premium 12 oy',ic:'🌟',p:321000,ps:'321 000',sub:'12 oylik — 30% tejam',disc:'-30%'},
-];
-const LB={
-  today:[{n:'Tadjibaev',a:'88 000'},{n:'Ахмед 24/7',a:'66 000'},{n:'Саидазиз',a:'55 000'},{n:'sobirjanov.x',a:'55 000'},{n:'...',a:'47 300'}],
-  week:[{n:'Tadjibaev',a:'540 000'},{n:'Ахмед 24/7',a:'380 000'},{n:'Саидазиз',a:'210 000'}],
-  month:[{n:'Tadjibaev',a:'2 100 000'},{n:'Ахмед 24/7',a:'1 450 000'},{n:'Саидазиз',a:'980 000'}],
-};
-const FAQ=[
-  {q:'Premium qanday ishlaydi?',a:'1 oylik Premium — akkauntingizga kirilib amalga oshiriladi. 3, 6, 12 oylik — to\'g\'ridan to\'g\'ri yuboriladi.'},
-  {q:'Stars qancha vaqtda yetib keladi?',a:'Odatda to\'lov tasdiqlangandan so\'ng 5–30 daqiqa ichida yetkazib beriladi.'},
-  {q:'Qaysi to\'lov usullari qabul qilinadi?',a:'Hozircha Uzcard orqali to\'lov qabul qilinadi. Yaqin orada Click va Payme ham qo\'shiladi.'},
-  {q:'Referal dasturi qanday ishlaydi?',a:'Havolangiz orqali ro\'yxatdan o\'tgan foydalanuvchi birinchi xarid qilganda +3 000 UZS va keyingi barcha xaridlaridan 3% cashback olasiz.'},
-  {q:'Promokod qaerdan olsa bo\'ladi?',a:'Promokodlar aksiyalar va ijtimoiy tarmoqlardagi e\'lonlarda tarqatiladi. /promo orqali faollashtiring.'},
-  {q:'Buyurtma rad etilsa nima bo\'ladi?',a:'Uzcard orqali to\'langan bo\'lsa menejer bilan bog\'laning. Balansdan to\'langan bo\'lsa avtomatik qaytariladi.'},
-];
-const CARD_D='5614 6821 1076 2236', CARD_R='5614682110762236', BUN='PremiumStore_TopBot';
+  const tg = window.Telegram?.WebApp;
+  if (tg) { tg.ready(); tg.expand(); }
 
-const tg=window.Telegram?.WebApp;
-let user=null,ct='s',sel=null,exp=false;
-let dr=false,sx=0,cx=0,mx=0,dn=false,oc=1;
-let ptype='s',pprod=null,puname='';
+  // Данные товаров
+  const stars = [
+    { id: 's_50', name: '50 Stars', price: 13000, priceStr: '13 000' },
+    { id: 's_100', name: '100 Stars', price: 24000, priceStr: '24 000' },
+    { id: 's_150', name: '150 Stars', price: 36000, priceStr: '36 000' },
+    { id: 's_250', name: '250 Stars', price: 60000, priceStr: '60 000' },
+    { id: 's_500', name: '500 Stars', price: 120000, priceStr: '120 000' },
+    { id: 's_1000', name: '1000 Stars', price: 240000, priceStr: '240 000' }
+  ];
+  const premium = [
+    { id: 'p_1m', name: 'Premium 1 oy', price: 40000, priceStr: '40 000', badge: 'kirish orqali' },
+    { id: 'p_3m', name: 'Premium 3 oy', price: 180000, priceStr: '180 000', badge: '-10%' },
+    { id: 'p_6m', name: 'Premium 6 oy', price: 225000, priceStr: '225 000', badge: '-15%' },
+    { id: 'p_12m', name: 'Premium 12 oy', price: 321000, priceStr: '321 000', badge: '-30%' }
+  ];
 
-if(tg){tg.ready();tg.expand();}
+  // SVG иконки
+  function starSvg() {
+    return `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L15 8.5L22 9.5L17 14.5L18.5 22L12 18.5L5.5 22L7 14.5L2 9.5L9 8.5L12 2Z" fill="#f5b042" stroke="#ffcd7e" stroke-width="0.8"/>
+            </svg>`;
+  }
+  function rocketSvg() {
+    return `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 3C12 3 9 7 9 12C9 14 10 16 12 18C14 16 15 14 15 12C15 7 12 3 12 3Z" stroke="#e2aaff" stroke-width="1.5" fill="none"/>
+              <path d="M7 15L4 18" stroke="#e2aaff" stroke-width="1.5"/>
+              <path d="M17 15L20 18" stroke="#e2aaff" stroke-width="1.5"/>
+            </svg>`;
+  }
 
-async function init(){
-  const uid=tg?.initDataUnsafe?.user?.id;
-  if(uid){try{const r=await fetch('https://telegram-bot-h5wf.onrender.com/api/user/'+uid);if(r.ok)user=await r.json();}catch(e){}}
-  if(!user&&tg?.initDataUnsafe?.user){const u=tg.initDataUnsafe.user;user={id:u.id,first_name:u.first_name,username:u.username,balance:0,refs:0,earned:0};}
-  applyU();renS();renP();renFaq();renLb('today');
-}
-
-function applyU(){
-  if(!user)return;
-  const un=user.username?'@'+user.username:user.first_name;
-  document.getElementById('tbU').textContent=un;
-  document.getElementById('payUB').textContent=un;
-  document.getElementById('pfN').textContent=user.first_name||'—';
-  document.getElementById('pfU2').textContent=user.username?'@'+user.username:'—';
-  document.getElementById('pfI').textContent='TELEGRAM ID: '+(user.id||'—');
-  document.getElementById('pfB').textContent=fmt(user.balance)+' UZS';
-  document.getElementById('rCnt').textContent=user.refs||0;
-  document.getElementById('rEarn').textContent=fmt(user.earned||0)+' so\'m';
-  document.getElementById('rlT').textContent='https://t.me/'+BUN+'?start='+(user.id||'');
-}
-
-function fmt(n){return Number(n).toLocaleString('ru-RU');}
-function fmtD(n){return Number(n).toLocaleString('ru-RU').replace(/\s/g,'.');}
-
-function renS(){
-  const el=document.getElementById('lstS');el.innerHTML='';
-  (exp?SP:SP.filter(p=>p.v)).forEach(p=>{
-    const d=document.createElement('div');
-    d.className='pcard s'+(sel?.id===p.id?' sel':'');
-    d.onclick=()=>selP(p,'s');
-    d.innerHTML=`<div class="pc-ic">${p.ic}</div><div class="pc-in"><div class="pc-n">${p.n}</div></div><div class="pc-r"><div class="pc-p s">${p.ps} UZS</div></div>`;
-    el.appendChild(d);
-  });
-  document.getElementById('morS').textContent=exp?'Скрыть ▲':'Ещё ▼';
-}
-
-function renP(){
-  const el=document.getElementById('lstP');el.innerHTML='';
-  PP.forEach(p=>{
-    const d=document.createElement('div');
-    d.className='pcard p'+(sel?.id===p.id?' sel':'');
-    d.onclick=()=>selP(p,'p');
-    d.innerHTML=`<div class="pc-ic">${p.ic}</div><div class="pc-in"><div class="pc-n">${p.n}</div><div class="pc-s">${p.sub}</div></div><div class="pc-r"><div class="pc-p p">${p.ps} UZS</div>${p.disc?`<span class="pc-d">${p.disc}</span>`:''}</div>`;
-    el.appendChild(d);
-  });
-}
-
-function renFaq(){
-  const el=document.getElementById('faqL');el.innerHTML='';
-  FAQ.forEach(f=>{
-    const d=document.createElement('div');d.className='fi';
-    d.innerHTML=`<div class="fiq" onclick="this.parentNode.classList.toggle('open')"><div class="fit">${f.q}</div><div class="fiarr">▼</div></div><div class="fia">${f.a}</div>`;
-    el.appendChild(d);
-  });
-}
-
-function renLb(p){
-  const el=document.getElementById('lbL');el.innerHTML='';
-  const m=['🥇','🥈','🥉'],rc=['g','s','b'];
-  (LB[p]||[]).forEach((x,i)=>{
-    const d=document.createElement('div');d.className='lbi';
-    d.innerHTML=`<div class="lbr ${i<3?rc[i]:''}">${i<3?m[i]:(i+1)+'.'}</div><div class="lbn">${x.n}</div><div class="lba">${x.a} so'm</div>`;
-    el.appendChild(d);
-  });
-}
-
-function nav(pid,title,el){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
-  document.getElementById(pid).classList.add('active');
-  el.classList.add('on');
-}
-
-function swMain(t){
-  ct=t;sel=null;
-  document.getElementById('mts').className='mts '+t;
-  ['S','P'].forEach(x=>{
-    const tl=x==='S'?'s':'p';
-    document.getElementById('mb'+x).className='mtb '+tl+(tl===t?' on':'');
-    document.getElementById('pan'+x).style.display=tl===t?'':'none';
-  });
-  updBuy(t);
-}
-
-function selP(p,t){sel=p;if(t==='s')renS();else renP();updBuy(t);}
-
-function updBuy(t){
-  const id=t==='s'?'buyS':'buyP';
-  const btn=document.getElementById(id);
-  if(sel&&sel.id.startsWith(t==='s'?'s_':'p_')){
-    btn.disabled=false;btn.textContent='Купить — '+sel.ps+' UZS';
-  }else{btn.disabled=true;btn.textContent='Выбрать товар';}
-}
-
-function togMore(){exp=!exp;renS();}
-
-function setMe(t){
-  const u=tg?.initDataUnsafe?.user;
-  const inp=document.getElementById(t==='s'?'uiS':'uiP');
-  const btn=document.getElementById(t==='s'?'ubS':'ubP');
-  if(u?.username){inp.value='@'+u.username;btn.classList.add('on');btn.textContent='✓ O\'zim';toast('✅ @'+u.username);}
-  else toast('❌ Username topilmadi');
-}
-
-function opPay(t){
-  if(!sel)return;
-  const u=document.getElementById(t==='s'?'uiS':'uiP').value.replace('@','').trim();
-  ptype=t;pprod=sel;puname=u;
-  document.getElementById('payH').className='pay-hero '+t;
-  const b=document.getElementById('phB');
-  b.className='ph-bdg '+t;
-  b.textContent=t==='s'?'⭐ TELEGRAM STARS':'🔥 ЭКСКЛЮЗИВНО';
-  document.getElementById('phI').textContent=sel.ic;
-  document.getElementById('phT').textContent=sel.n+(u?' для @'+u:'');
-  document.getElementById('phO').textContent='💳 C'+String(oc++).padStart(4,'0');
-  const af=fmtD(sel.p);
-  document.getElementById('phA').textContent=af;
-  document.getElementById('phA').className='ph-pa '+t;
-  document.getElementById('rCard').textContent=CARD_D;
-  document.getElementById('rAmt').textContent=af+' сум';
-  document.getElementById('swTr').className='swtr '+t;
-  document.getElementById('swTh').className='swth '+t;
-  rstSw();
-  document.getElementById('payPage').classList.add('open');
-  document.getElementById('payPage').scrollTop=0;
-}
-
-function clPay(){document.getElementById('payPage').classList.remove('open');rstSw();}
-
-function cpCard(){cp(CARD_R);}
-function cpAmt(){if(pprod)cp(String(pprod.p));}
-function cp(txt){
-  navigator.clipboard?.writeText(txt).catch(()=>{const t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);});
-  toast('✅ Nusxalandi');
-}
-function cpRef(){cp(document.getElementById('rlT').textContent);toast('🔗 Havola nusxalandi');}
-
-function rstSw(){
-  dn=false;dr=false;cx=0;
-  const th=document.getElementById('swTh'),tr=document.getElementById('swTr');
-  th.style.transition='transform .3s ease';tr.style.transition='width .3s ease';
-  th.style.transform='translateX(0)';tr.style.width='0%';th.textContent='›';
-}
-
-const swTh=document.getElementById('swTh');
-swTh.addEventListener('mousedown', e=>{e.preventDefault();swSt(e.clientX);});
-swTh.addEventListener('touchstart',e=>{e.preventDefault();swSt(e.touches[0].clientX);},{passive:false});
-document.addEventListener('mousemove', e=>swMv(e.clientX));
-document.addEventListener('touchmove', e=>swMv(e.touches[0].clientX),{passive:false});
-document.addEventListener('mouseup',  swEn);
-document.addEventListener('touchend', swEn);
-
-function swSt(x){
-  if(dn)return;dr=true;
-  mx=document.getElementById('swW').offsetWidth-56;sx=x-cx;
-  document.getElementById('swTh').style.transition='none';
-  document.getElementById('swTr').style.transition='none';
-}
-function swMv(x){
-  if(!dr||dn)return;
-  let dx=Math.max(0,Math.min(x-sx,mx));cx=dx;
-  document.getElementById('swTh').style.transform=`translateX(${dx}px)`;
-  document.getElementById('swTr').style.width=`${(dx/mx)*100}%`;
-}
-function swEn(){
-  if(!dr||dn)return;dr=false;
-  const th=document.getElementById('swTh'),tr=document.getElementById('swTr');
-  th.style.transition='transform .3s ease';tr.style.transition='width .3s ease';
-  if(cx/mx>0.85){
-    dn=true;th.style.transform=`translateX(${mx}px)`;tr.style.width='100%';th.textContent='✓';
-    setTimeout(confOrd,400);
-  }else{cx=0;th.style.transform='translateX(0)';tr.style.width='0%';}
-}
-
-async function confOrd(){
-  if(!pprod)return;
-  const th=document.getElementById('swTh');
-  th.textContent='⏳';
-  try {
-    const uid = tg?.initDataUnsafe?.user?.id;
-    if(!uid){ toast('❌ Telegram orqali oching!'); rstSw(); return; }
-    const r = await fetch('https://telegram-bot-h5wf.onrender.com/api/order', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        user_id: uid,
-        product_id: pprod.id,
-        product_name: pprod.n,
-        price: pprod.p,
-        price_str: pprod.ps,
-        type: ptype,
-        target_username: puname || '',
-      })
+  function renderStars() {
+    const container = document.getElementById('starsList');
+    container.innerHTML = '';
+    stars.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-left">
+          <div class="icon-circle">${starSvg()}</div>
+          <div class="info">
+            <h3>${p.name}</h3>
+            <div class="price price-star">${p.priceStr} UZS</div>
+          </div>
+        </div>
+        <button class="buy-btn" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}" data-price-str="${p.priceStr}" data-type="star">Купить</button>
+      `;
+      container.appendChild(card);
     });
-    if(r.ok){
-      th.textContent='✅';
-      toast('✅ Buyurtma qabul qilindi! Botni tekshiring');
-      setTimeout(()=>{ if(tg?.close) tg.close(); else clPay(); },2000);
-    } else {
-      toast('❌ Xatolik. Qayta urining');
-      rstSw();
+    attachBuyEvents();
+  }
+
+  function renderPremium() {
+    const container = document.getElementById('premiumList');
+    container.innerHTML = '';
+    premium.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-left">
+          <div class="icon-circle">${rocketSvg()}</div>
+          <div class="info">
+            <h3>${p.name}</h3>
+            <div class="price price-premium">${p.priceStr} UZS</div>
+            ${p.badge ? `<div class="badge">${p.badge}</div>` : ''}
+          </div>
+        </div>
+        <button class="buy-btn" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}" data-price-str="${p.priceStr}" data-type="premium">Купить</button>
+      `;
+      container.appendChild(card);
+    });
+    attachBuyEvents();
+  }
+
+  async function sendOrder(product) {
+    const uid = tg?.initDataUnsafe?.user?.id;
+    if (!uid) {
+      toast('❌ Ошибка: не удалось определить пользователя');
+      return;
     }
-  } catch(e){
-    toast('❌ Ulanish xatosi');
-    rstSw();
+    try {
+      const res = await fetch('/api/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: uid,
+          product_id: product.id,
+          product_name: product.name,
+          price: product.price,
+          price_str: product.priceStr,
+          type: product.type
+        })
+      });
+      if (res.ok) {
+        toast('✅ Заказ отправлен! Ожидайте подтверждения');
+        if (tg?.close) tg.close();
+      } else {
+        toast('❌ Ошибка при оформлении');
+      }
+    } catch (err) {
+      toast('❌ Ошибка сети');
+    }
   }
-}
-  
-function swLb(p,el){document.querySelectorAll('.lbt').forEach(t=>t.classList.remove('on'));el.classList.add('on');renLb(p);}
-function topup(){
-  if(tg?.openTelegramLink){
-    tg.openTelegramLink('https://t.me/PremiumStore_TopBot?start=topup');
-  } else {
-    toast('Botga @PremiumStore_TopBot yozing: /start topup');
+
+  function attachBuyEvents() {
+    document.querySelectorAll('.buy-btn').forEach(btn => {
+      btn.removeEventListener('click', buyHandler);
+      btn.addEventListener('click', buyHandler);
+    });
   }
-}
-function goSup(){if(tg?.openLink)tg.openLink('https://t.me/Tadjibaev_i');else if(tg?.openTelegramLink)tg.openTelegramLink('https://t.me/Tadjibaev_i');}
-function invite(){const l=document.getElementById('rlT').textContent;if(tg?.openTelegramLink)tg.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(l));else{cpRef();}}
 
-function toast(m){
-  const t=document.getElementById('tst');t.textContent=m;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
-}
+  function buyHandler(e) {
+    const btn = e.currentTarget;
+    const product = {
+      id: btn.dataset.id,
+      name: btn.dataset.name,
+      price: parseInt(btn.dataset.price),
+      priceStr: btn.dataset.priceStr,
+      type: btn.dataset.type
+    };
+    sendOrder(product);
+  }
 
-init();
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2500);
+  }
+
+  function navClick(page) {
+    toast(`📱 ${page} — в разработке`);
+  }
+
+  renderStars();
+  renderPremium();
 </script>
 </body>
 </html>
