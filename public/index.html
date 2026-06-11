@@ -91,6 +91,7 @@
             font-size: 14px;
             color: #eee;
             cursor: pointer;
+            transition: 0.1s;
         }
         .buy-btn:active {
             transform: scale(0.94);
@@ -167,7 +168,7 @@
     const tg = window.Telegram?.WebApp;
     if (tg) { tg.ready(); tg.expand(); }
 
-    // ⭐ Товары Звёзды (правильные)
+    // ⭐ Товары Звёзды
     const stars = [
         { id: 's_50', name: '50 Stars', price: 13000, priceStr: '13 000' },
         { id: 's_100', name: '100 Stars', price: 24000, priceStr: '24 000' },
@@ -217,14 +218,17 @@
                     type: product.type
                 })
             });
+            const data = await res.json();
             if (res.ok) {
                 toast('✅ Заказ отправлен! Ожидайте подтверждения');
                 if (tg?.close) tg.close();
             } else {
-                toast('❌ Ошибка при оформлении');
+                toast(`❌ Ошибка: ${data.error || 'сервер вернул ошибку'}`);
+                console.error('Order error:', data);
             }
         } catch(e) {
-            toast('❌ Ошибка сети');
+            toast('❌ Ошибка сети: ' + e.message);
+            console.error('Fetch error:', e);
         }
     }
 
@@ -253,15 +257,19 @@
             `;
             container.appendChild(card);
         });
+        // Привязываем обработчики
         document.querySelectorAll('.buy-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.removeEventListener('click', btn._handler);
+            const handler = () => {
                 sendOrder({
                     id: btn.dataset.id,
                     name: btn.dataset.name,
                     price: parseInt(btn.dataset.price),
                     type: 'star'
                 });
-            });
+            };
+            btn._handler = handler;
+            btn.addEventListener('click', handler);
         });
     }
 
@@ -285,14 +293,17 @@
             container.appendChild(card);
         });
         document.querySelectorAll('.buy-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.removeEventListener('click', btn._handler);
+            const handler = () => {
                 sendOrder({
                     id: btn.dataset.id,
                     name: btn.dataset.name,
                     price: parseInt(btn.dataset.price),
                     type: 'premium'
                 });
-            });
+            };
+            btn._handler = handler;
+            btn.addEventListener('click', handler);
         });
     }
 
