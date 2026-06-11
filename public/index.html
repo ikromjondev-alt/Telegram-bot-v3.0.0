@@ -1,154 +1,150 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Telegram Softs — Stars & Premium</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-  }
-  body {
-    background: #0b0b12;
-    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    padding: 20px 16px 90px;
-    color: #fff;
-  }
-  .section-title {
-    font-size: 26px;
-    font-weight: 700;
-    margin: 24px 0 16px 0;
-    background: linear-gradient(135deg, #fff, #b0b0ff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    padding-left: 4px;
-  }
-  .card {
-    background: rgba(22, 22, 32, 0.8);
-    backdrop-filter: blur(4px);
-    border-radius: 28px;
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 18px;
-    border: 1px solid rgba(255,255,255,0.06);
-    box-shadow: 0 8px 18px rgba(0,0,0,0.4);
-    transition: 0.1s;
-  }
-  .card:active {
-    transform: scale(0.98);
-    background: #20202c;
-  }
-  .card-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  .icon-circle {
-    width: 54px;
-    height: 54px;
-    background: #1e1e2c;
-    border-radius: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: inset 0 1px 1px rgba(255,255,255,0.05), 0 6px 12px rgba(0,0,0,0.3);
-  }
-  .info h3 {
-    font-size: 17px;
-    font-weight: 600;
-  }
-  .price {
-    font-size: 17px;
-    font-weight: 700;
-    margin-top: 4px;
-  }
-  .price-star {
-    color: #f5b042;
-  }
-  .price-premium {
-    color: #e2aaff;
-  }
-  .badge {
-    font-size: 11px;
-    background: rgba(245,176,66,0.15);
-    padding: 3px 10px;
-    border-radius: 40px;
-    display: inline-block;
-    margin-top: 4px;
-    color: #f5b042;
-  }
-  .buy-btn {
-    background: #2a2a36;
-    border: none;
-    border-radius: 40px;
-    padding: 10px 24px;
-    font-weight: 700;
-    font-size: 14px;
-    color: #eee;
-    cursor: pointer;
-    transition: 0.1s;
-  }
-  .buy-btn:active {
-    transform: scale(0.94);
-    background: #3a3a4a;
-    color: white;
-  }
-  .bottom-nav {
-    position: fixed;
-    bottom: 14px;
-    left: 16px;
-    right: 16px;
-    background: rgba(20,20,28,0.92);
-    backdrop-filter: blur(20px);
-    border-radius: 48px;
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 16px;
-    border: 1px solid rgba(255,255,255,0.08);
-  }
-  .nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    font-size: 10px;
-    font-weight: 600;
-    color: #8a8aa0;
-    cursor: pointer;
-    padding: 6px 12px;
-    border-radius: 40px;
-    transition: 0.1s;
-  }
-  .nav-item.active {
-    background: #2e2e3c;
-    color: #f5b042;
-  }
-  .toast {
-    position: fixed;
-    bottom: 90px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #2a2a36;
-    color: #fff;
-    padding: 8px 18px;
-    border-radius: 40px;
-    font-size: 13px;
-    z-index: 1000;
-    pointer-events: none;
-    opacity: 0;
-    transition: 0.2s;
-  }
-  .toast.show {
-    opacity: 1;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Telegram Softs — Stars & Premium</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #0b0b12;
+            font-family: system-ui, -apple-system, 'Inter', 'Segoe UI', Roboto, sans-serif;
+            padding: 20px 16px 90px;
+            color: #fff;
+        }
+        .section-title {
+            font-size: 26px;
+            font-weight: 700;
+            margin: 24px 0 16px 0;
+            background: linear-gradient(135deg, #fff, #b0b0ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            padding-left: 4px;
+        }
+        .card {
+            background: rgba(22, 22, 32, 0.8);
+            backdrop-filter: blur(4px);
+            border-radius: 28px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.4);
+            transition: 0.1s;
+        }
+        .card:active {
+            transform: scale(0.98);
+            background: #20202c;
+        }
+        .card-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .icon-circle {
+            width: 54px;
+            height: 54px;
+            background: #1e1e2c;
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .info h3 {
+            font-size: 17px;
+            font-weight: 600;
+        }
+        .price {
+            font-size: 17px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+        .price-star {
+            color: #f5b042;
+        }
+        .price-premium {
+            color: #e2aaff;
+        }
+        .badge {
+            font-size: 11px;
+            background: rgba(245,176,66,0.15);
+            padding: 3px 10px;
+            border-radius: 40px;
+            display: inline-block;
+            margin-top: 4px;
+            color: #f5b042;
+        }
+        .buy-btn {
+            background: #2a2a36;
+            border: none;
+            border-radius: 40px;
+            padding: 10px 24px;
+            font-weight: 700;
+            font-size: 14px;
+            color: #eee;
+            cursor: pointer;
+        }
+        .buy-btn:active {
+            transform: scale(0.94);
+            background: #3a3a4a;
+            color: white;
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 14px;
+            left: 16px;
+            right: 16px;
+            background: rgba(20,20,28,0.92);
+            backdrop-filter: blur(20px);
+            border-radius: 48px;
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #8a8aa0;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 40px;
+        }
+        .nav-item.active {
+            background: #2e2e3c;
+            color: #f5b042;
+        }
+        .toast {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2a2a36;
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 13px;
+            z-index: 1000;
+            opacity: 0;
+            transition: 0.2s;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
 
@@ -159,154 +155,149 @@
 <div id="premiumList"></div>
 
 <div class="bottom-nav">
-  <div class="nav-item" onclick="navClick('ref')">👥 Рефералы</div>
-  <div class="nav-item" onclick="navClick('events')">📅 События</div>
-  <div class="nav-item active" onclick="navClick('home')">🏠 Главная</div>
-  <div class="nav-item" onclick="navClick('market')">🛒 Маркет</div>
-  <div class="nav-item" onclick="navClick('profile')">👤 Профиль</div>
+    <div class="nav-item">👥 Рефералы</div>
+    <div class="nav-item">📅 События</div>
+    <div class="nav-item active">🏠 Главная</div>
+    <div class="nav-item">🛒 Маркет</div>
+    <div class="nav-item">👤 Профиль</div>
 </div>
-
 <div id="toast" class="toast"></div>
 
 <script>
-  const tg = window.Telegram?.WebApp;
-  if (tg) { tg.ready(); tg.expand(); }
+    const tg = window.Telegram?.WebApp;
+    if (tg) { tg.ready(); tg.expand(); }
 
-  // Данные товаров
-  const stars = [
-    { id: 's_50', name: '50 Stars', price: 13000, priceStr: '13 000' },
-    { id: 's_100', name: '100 Stars', price: 24000, priceStr: '24 000' },
-    { id: 's_150', name: '150 Stars', price: 36000, priceStr: '36 000' },
-    { id: 's_250', name: '250 Stars', price: 60000, priceStr: '60 000' },
-    { id: 's_500', name: '500 Stars', price: 120000, priceStr: '120 000' },
-    { id: 's_1000', name: '1000 Stars', price: 240000, priceStr: '240 000' }
-  ];
-  const premium = [
-    { id: 'p_1m', name: 'Premium 1 oy', price: 40000, priceStr: '40 000', badge: 'kirish orqali' },
-    { id: 'p_3m', name: 'Premium 3 oy', price: 180000, priceStr: '180 000', badge: '-10%' },
-    { id: 'p_6m', name: 'Premium 6 oy', price: 225000, priceStr: '225 000', badge: '-15%' },
-    { id: 'p_12m', name: 'Premium 12 oy', price: 321000, priceStr: '321 000', badge: '-30%' }
-  ];
+    // ⭐ Товары Звёзды (правильные)
+    const stars = [
+        { id: 's_50', name: '50 Stars', price: 13000, priceStr: '13 000' },
+        { id: 's_100', name: '100 Stars', price: 24000, priceStr: '24 000' },
+        { id: 's_150', name: '150 Stars', price: 36000, priceStr: '36 000' },
+        { id: 's_250', name: '250 Stars', price: 60000, priceStr: '60 000' },
+        { id: 's_500', name: '500 Stars', price: 120000, priceStr: '120 000' },
+        { id: 's_1000', name: '1000 Stars', price: 240000, priceStr: '240 000' }
+    ];
 
-  // SVG иконки
-  function starSvg() {
-    return `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L15 8.5L22 9.5L17 14.5L18.5 22L12 18.5L5.5 22L7 14.5L2 9.5L9 8.5L12 2Z" fill="#f5b042" stroke="#ffcd7e" stroke-width="0.8"/>
-            </svg>`;
-  }
-  function rocketSvg() {
-    return `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 3C12 3 9 7 9 12C9 14 10 16 12 18C14 16 15 14 15 12C15 7 12 3 12 3Z" stroke="#e2aaff" stroke-width="1.5" fill="none"/>
-              <path d="M7 15L4 18" stroke="#e2aaff" stroke-width="1.5"/>
-              <path d="M17 15L20 18" stroke="#e2aaff" stroke-width="1.5"/>
-            </svg>`;
-  }
+    // 💎 Товары Премиум
+    const premium = [
+        { id: 'p_1m', name: 'Premium 1 oy', price: 40000, priceStr: '40 000', badge: 'kirish orqali' },
+        { id: 'p_3m', name: 'Premium 3 oy', price: 180000, priceStr: '180 000', badge: '-10%' },
+        { id: 'p_6m', name: 'Premium 6 oy', price: 225000, priceStr: '225 000', badge: '-15%' },
+        { id: 'p_12m', name: 'Premium 12 oy', price: 321000, priceStr: '321 000', badge: '-30%' }
+    ];
 
-  function renderStars() {
-    const container = document.getElementById('starsList');
-    container.innerHTML = '';
-    stars.forEach(p => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <div class="card-left">
-          <div class="icon-circle">${starSvg()}</div>
-          <div class="info">
-            <h3>${p.name}</h3>
-            <div class="price price-star">${p.priceStr} UZS</div>
-          </div>
-        </div>
-        <button class="buy-btn" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}" data-price-str="${p.priceStr}" data-type="star">Купить</button>
-      `;
-      container.appendChild(card);
-    });
-    attachBuyEvents();
-  }
-
-  function renderPremium() {
-    const container = document.getElementById('premiumList');
-    container.innerHTML = '';
-    premium.forEach(p => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <div class="card-left">
-          <div class="icon-circle">${rocketSvg()}</div>
-          <div class="info">
-            <h3>${p.name}</h3>
-            <div class="price price-premium">${p.priceStr} UZS</div>
-            ${p.badge ? `<div class="badge">${p.badge}</div>` : ''}
-          </div>
-        </div>
-        <button class="buy-btn" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}" data-price-str="${p.priceStr}" data-type="premium">Купить</button>
-      `;
-      container.appendChild(card);
-    });
-    attachBuyEvents();
-  }
-
-  async function sendOrder(product) {
-    const uid = tg?.initDataUnsafe?.user?.id;
-    if (!uid) {
-      toast('❌ Ошибка: не удалось определить пользователя');
-      return;
+    function starSvg() {
+        return `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L15 8.5L22 9.5L17 14.5L18.5 22L12 18.5L5.5 22L7 14.5L2 9.5L9 8.5L12 2Z" fill="#f5b042" stroke="#ffcd7e" stroke-width="0.8"/>
+                </svg>`;
     }
-    try {
-      const res = await fetch('/api/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: uid,
-          product_id: product.id,
-          product_name: product.name,
-          price: product.price,
-          price_str: product.priceStr,
-          type: product.type
-        })
-      });
-      if (res.ok) {
-        toast('✅ Заказ отправлен! Ожидайте подтверждения');
-        if (tg?.close) tg.close();
-      } else {
-        toast('❌ Ошибка при оформлении');
-      }
-    } catch (err) {
-      toast('❌ Ошибка сети');
+
+    function rocketSvg() {
+        return `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 3C12 3 9 7 9 12C9 14 10 16 12 18C14 16 15 14 15 12C15 7 12 3 12 3Z" stroke="#e2aaff" stroke-width="1.5" fill="none"/>
+                    <path d="M7 15L4 18" stroke="#e2aaff" stroke-width="1.5"/>
+                    <path d="M17 15L20 18" stroke="#e2aaff" stroke-width="1.5"/>
+                </svg>`;
     }
-  }
 
-  function attachBuyEvents() {
-    document.querySelectorAll('.buy-btn').forEach(btn => {
-      btn.removeEventListener('click', buyHandler);
-      btn.addEventListener('click', buyHandler);
-    });
-  }
+    async function sendOrder(product) {
+        const uid = tg?.initDataUnsafe?.user?.id;
+        if (!uid) {
+            toast('❌ Ошибка: не удалось определить пользователя');
+            return;
+        }
+        try {
+            const res = await fetch('/api/order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: uid,
+                    product_id: product.id,
+                    product_name: product.name,
+                    price: product.price,
+                    type: product.type
+                })
+            });
+            if (res.ok) {
+                toast('✅ Заказ отправлен! Ожидайте подтверждения');
+                if (tg?.close) tg.close();
+            } else {
+                toast('❌ Ошибка при оформлении');
+            }
+        } catch(e) {
+            toast('❌ Ошибка сети');
+        }
+    }
 
-  function buyHandler(e) {
-    const btn = e.currentTarget;
-    const product = {
-      id: btn.dataset.id,
-      name: btn.dataset.name,
-      price: parseInt(btn.dataset.price),
-      priceStr: btn.dataset.priceStr,
-      type: btn.dataset.type
-    };
-    sendOrder(product);
-  }
+    function toast(msg) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.classList.add('show');
+        setTimeout(() => el.classList.remove('show'), 2500);
+    }
 
-  function toast(msg) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    setTimeout(() => el.classList.remove('show'), 2500);
-  }
+    function renderStars() {
+        const container = document.getElementById('starsList');
+        container.innerHTML = '';
+        stars.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="card-left">
+                    <div class="icon-circle">${starSvg()}</div>
+                    <div class="info">
+                        <h3>${p.name}</h3>
+                        <div class="price price-star">${p.priceStr} UZS</div>
+                    </div>
+                </div>
+                <button class="buy-btn" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}">Купить</button>
+            `;
+            container.appendChild(card);
+        });
+        document.querySelectorAll('.buy-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                sendOrder({
+                    id: btn.dataset.id,
+                    name: btn.dataset.name,
+                    price: parseInt(btn.dataset.price),
+                    type: 'star'
+                });
+            });
+        });
+    }
 
-  function navClick(page) {
-    toast(`📱 ${page} — в разработке`);
-  }
+    function renderPremium() {
+        const container = document.getElementById('premiumList');
+        container.innerHTML = '';
+        premium.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="card-left">
+                    <div class="icon-circle">${rocketSvg()}</div>
+                    <div class="info">
+                        <h3>${p.name}</h3>
+                        <div class="price price-premium">${p.priceStr} UZS</div>
+                        ${p.badge ? `<div class="badge">${p.badge}</div>` : ''}
+                    </div>
+                </div>
+                <button class="buy-btn" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}">Купить</button>
+            `;
+            container.appendChild(card);
+        });
+        document.querySelectorAll('.buy-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                sendOrder({
+                    id: btn.dataset.id,
+                    name: btn.dataset.name,
+                    price: parseInt(btn.dataset.price),
+                    type: 'premium'
+                });
+            });
+        });
+    }
 
-  renderStars();
-  renderPremium();
+    renderStars();
+    renderPremium();
 </script>
 </body>
 </html>
