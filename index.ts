@@ -147,21 +147,43 @@ app.get('/api/user/:id', (req, res) => {
   if (isNaN(uid)) { res.status(400).json({ error: 'invalid id' }); return; }
   const user = getUser(uid);
   if (!user) { res.status(404).json({ error: 'not found' }); return; }
-  res.json({ id: user.id, first_name: user.first_name, username: user.username, balance: user.balance, lang: user.lang, refs: getReferralCount(uid), earned: getReferralEarnings(uid), orders: getUserOrders(uid).length });
+  res.json({
+    id: user.id,
+    first_name: user.first_name,
+    username: user.username,
+    balance: user.balance,
+    lang: user.lang,
+    refs: getReferralCount(uid),
+    earned: getReferralEarnings(uid),
+    orders: getUserOrders(uid).length,
+  });
 });
 
 app.post('/api/order', (req, res) => {
   const { user_id, product_id, product_name, price } = req.body;
-  if (!user_id || !product_id) { res.status(400).json({ error: 'Missing user_id or product_id' }); return; }
+  if (!user_id || !product_id) {
+    return res.status(400).json({ error: 'Missing user_id or product_id' });
+  }
   const orderId = newOrderId();
-  createOrder({ id: orderId, user_id, product_id, product_name, price: price || 0, target_username: String(user_id) });
-  console.log(`✅ Новый заказ #${orderId} от ${user_id}: ${product_name}`);
-  res.json({ ok: true, orderId });
+  try {
+    createOrder({
+      id: orderId,
+      user_id,
+      product_id,
+      product_name,
+      price: price || 0,
+      target_username: String(user_id),
+    });
+    console.log(`✅ Новый заказ #${orderId} от ${user_id}: ${product_name}`);
+    res.json({ ok: true, orderId });
+  } catch (err) {
+    console.error('❌ Ошибка создания заказа:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 app.get('/', (_req, res) => { res.sendFile(path.join(publicPath, 'index.html')); });
 app.listen(PORT, () => console.log(`🌐 Web server port ${PORT}`));
-
 async function startBot() {
   const bot = new TelegramBot(BOT_TOKEN, { polling: { interval: 300, autoStart: false, params: { timeout: 10 } } });
   try { await bot.deleteWebHook(); console.log('✅ Webhook cleared'); } catch { console.log('ℹ️ No webhook'); }
@@ -332,10 +354,9 @@ async function startBot() {
         const targetId = parseInt(text.trim(), 10);
         if (isNaN(targetId)) { await bot.sendMessage(uid, '❌ Неверный ID.'); return; }
         setState(uid, { step: 'awaiting_dm_text', dmTarget: targetId });
-                await bot.sendMessage(uid, `📨 Теперь введите текст для \`${targetId}\`:`, { parse_mode: 'Markdown', reply_markup: cancelKb() });
+        await bot.sendMessage(uid, `📨 Теперь введите текст для \`${targetId}\`:`, { parse_mode: 'Markdown', reply_markup: cancelKb() });
         return;
       }
-
       if (state.step === 'awaiting_dm_text' && text && !text.startsWith('/')) {
         const targetId = state.dmTarget!;
         setState(uid, { step: 'main_menu' });
@@ -347,8 +368,6 @@ async function startBot() {
         }
         return;
       }
-
-      // Admin reject step 2 (причина отклонения заказа)
       if (adminReject.has(uid)) {
         const orderId = adminReject.get(uid)!;
         if (!orderId.startsWith('topup:') && !orderId.startsWith('reject:')) {
@@ -369,18 +388,14 @@ async function startBot() {
           return;
         }
       }
-    } // ← закрытие if (uid === ADMIN_ID)
+    }
 
-    // ── Web App data ─────────────────────────────────────────
     if (msg.web_app_data?.data) {
       try {
         const d = JSON.parse(msg.web_app_data.data);
         if (d.action === 'topup') {
           setState(uid, { step: 'awaiting_receipt', productId: 'topup', productName: 'Пополнение баланса', price: 0 });
-          await bot.sendMessage(uid,
-            `💰 *Пополнение баланса*\n\nКарта: \`${CARD_NUMBER}\`\nВладелец: ${CARD_HOLDER}\n\n📸 Любую сумму переведите и пришлите скриншот чека.`,
-            { parse_mode: 'Markdown' }
-          );
+          await bot.sendMessage(uid, `💰 *Пополнение баланса*\n\nКарта: \`${CARD_NUMBER}\`\nВладелец: ${CARD_HOLDER}\n\n📸 Любую сумму переведите и пришлите скриншот чека.`, { parse_mode: 'Markdown' });
           return;
         }
         if (d.target_username) {
@@ -404,9 +419,7 @@ async function startBot() {
             }
           );
         } else {
-          await bot.sendMessage(uid, tr(lang, 'enterUsername'), {
-            reply_markup: { remove_keyboard: true },
-          });
+          await bot.sendMessage(uid, tr(lang, 'enterUsername'), { reply_markup: { remove_keyboard: true } });
         }
       } catch {
         await bot.sendMessage(uid, '❌ Ошибка данных. Попробуйте ещё раз.');
@@ -414,7 +427,6 @@ async function startBot() {
       return;
     }
 
-    // ── Awaiting username ────────────────────────────────────
     if (state.step === 'awaiting_username' && text && !text.startsWith('/')) {
       const cleaned = text.replace('@', '').trim();
       if (!/^[a-zA-Z0-9_]{5,32}$/.test(cleaned)) {
@@ -440,12 +452,10 @@ async function startBot() {
       return;
     }
 
-    // ── Awaiting receipt photo ───────────────────────────────
     if (state.step === 'awaiting_receipt') {
       let fileId: string | undefined;
-      if (msg.photo)         fileId = msg.photo[msg.photo.length - 1].file_id;
+      if (msg.photo) fileId = msg.photo[msg.photo.length - 1].file_id;
       else if (msg.document) fileId = msg.document.file_id;
-
       if (!fileId) { await bot.sendMessage(uid, tr(lang, 'sendPhoto')); return; }
 
       if (state.productId === 'topup') {
@@ -490,7 +500,6 @@ async function startBot() {
       return;
     }
 
-    // ── Promo code input ─────────────────────────────────────
     if (state.step === 'awaiting_promo' && text && !text.startsWith('/')) {
       const promo = text.trim();
       const res = usePromo(uid, promo);
@@ -504,7 +513,6 @@ async function startBot() {
       return;
     }
 
-    // ── Menu buttons ─────────────────────────────────────────
     if (text === tr(lang, 'profile')) {
       const u = getUser(uid);
       const orders = getUserOrders(uid);
@@ -559,23 +567,21 @@ async function startBot() {
       return;
     }
 
-    // Topup balance button from Web App
     if (text === '💰 Пополнить баланс' || text === '💰 Balansni to\'ldirish') {
       await bot.sendMessage(uid, tr(lang, 'topupMsg'), { parse_mode: 'Markdown' });
       return;
     }
 
-    // Default
     if (state.step === 'main_menu' || state.step === 'idle') {
       await bot.sendMessage(uid,
         tr(lang, 'welcome', { name: msg.from!.first_name }),
         { reply_markup: mainKb(lang), parse_mode: 'Markdown' }
       );
     }
-  }); // ← закрытие bot.on('message')
+  });
 
-  process.once('SIGINT', () => { bot.stopPolling(); process.exit(0); });
+process.once('SIGINT', () => { bot.stopPolling(); process.exit(0); });
   process.once('SIGTERM', () => { bot.stopPolling(); process.exit(0); });
-} // ← закрытие startBot()
+}
 
 startBot().catch(err => { console.error('Fatal:', err); process.exit(1); });
