@@ -176,41 +176,35 @@ const T: Record<Lang, any> = {
     changeLang: '🌐 Tilni o‘zgartirish',
 
     flood:
-      '⏳ Juda tez harakat qilyapsiz. Biroz kuting.',
+  '⏳ Juda tez harakat qilyapsiz. Biroz kuting.',
 
-    enterUsername:
-      '✏️ Foydalanuvchi usernamesini yuboring (@siz).',
+enterUsername:
+  '✏️ Foydalanuvchi usernamesini yuboring (@siz).',
 
-    invalidUser:
-      '❌ Username noto‘g‘ri.\n\nMisol: `telegram`',
+invalidUser:
+  '❌ Username noto‘g‘ri.\n\nMisol: `telegram`',
 
-    choosePayment:
-      '📦 Mahsulot: *{product}*\n' +
-      '👤 Username: *@{username}*\n' +
-      '💰 Narxi: *{price} so‘m*\n\n' +
-      'To‘lov usulini tanlang:',
+choosePayment:
+  '📦 Mahsulot: *{product}*\n' +
+  '👤 Username: *@{username}*\n' +
+  '💰 Narxi: *{price} so‘m*\n\n' +
+  'To‘lov usulini tanlang:',
 
-    payByCard: '💳 Karta orqali',
-    payByBalance: '💰 Balans ({balance})',
-    if (state.step === 'awaiting_promo' && text && !text.startsWith('/')) {
-      const promo = text.trim();
-      const res = usePromo(uid, promo);
+payByCard:
+  '💳 Karta orqali',
 
-      if (res.ok) {
-        await bot.sendMessage(
-          uid,
-          tr(lang, 'promoOk', {
-            bonus: fmt(res.bonus!)
-          }),
-          { parse_mode: 'Markdown' }
-        );
-      } else {
-        await bot.sendMessage(
-          uid,
-          tr(lang, 'promoFail'),
-          { parse_mode: 'Markdown' }
-        );
-      }
+payByBalance:
+  '💰 Balans ({balance})',
+
+promoAsk:
+  '🎁 Promo kodni yuboring:',
+
+promoOk:
+  '✅ Bonus qo‘shildi!\n\n' +
+  '+{bonus} so‘m',
+
+promoFail:
+  '❌ Promo kod yaroqsiz.',
 
       setState(uid, { step: 'main_menu' });
 
