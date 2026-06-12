@@ -2,9 +2,15 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0,
+                   user-scalable=no,
+                   viewport-fit=cover">
+
     <title>Telegram Softs Bot</title>
+
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -12,12 +18,15 @@
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
+
         body {
             background: #0b0b12;
-            font-family: system-ui, -apple-system, 'Inter', 'Segoe UI', Roboto, sans-serif;
+            font-family: system-ui, -apple-system, 'Inter',
+                         'Segoe UI', Roboto, sans-serif;
             padding: 20px 16px 90px;
             color: #fff;
         }
+
         .topbar {
             display: flex;
             align-items: center;
@@ -28,8 +37,11 @@
             margin-bottom: 20px;
             border: 1px solid rgba(255,255,255,0.08);
         }
+
         .tbl-ico {
-            background: linear-gradient(135deg, #f59e0b, #8b5cf6);
+            background: linear-gradient(135deg,
+                        #f59e0b,
+                        #8b5cf6);
             width: 34px;
             height: 34px;
             border-radius: 9px;
@@ -38,22 +50,31 @@
             justify-content: center;
             font-size: 17px;
         }
+
         .tbl-name {
             font-size: 16px;
             font-weight: 800;
-            background: linear-gradient(135deg, #00d4ff, #8b5cf6);
+            background: linear-gradient(135deg,
+                        #00d4ff,
+                        #8b5cf6);
+
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
+
         .tb-u {
             background: rgba(255,255,255,0.08);
             padding: 4px 12px;
             border-radius: 18px;
             font-size: 12px;
         }
+
         .tb-v {
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            background: linear-gradient(135deg,
+                        #00d4ff,
+                        #0099cc);
+
             padding: 4px 12px;
             border-radius: 18px;
             font-size: 12px;
@@ -61,228 +82,181 @@
             color: #000;
             cursor: pointer;
         }
+
         .section-title {
             font-size: 22px;
             font-weight: 700;
-            margin: 20px 0 12px 0;
+            margin: 20px 0 12px;
         }
+
         .card {
             background: rgba(22,22,32,0.8);
             border-radius: 24px;
             padding: 14px 18px;
             margin-bottom: 12px;
+
             display: flex;
             align-items: center;
             justify-content: space-between;
+
             border: 1px solid rgba(255,255,255,0.06);
         }
+
         .card-left {
             display: flex;
             align-items: center;
             gap: 14px;
         }
+
         .icon-circle {
             width: 48px;
             height: 48px;
+
             background: #1e1e2c;
+
             border-radius: 28px;
+
             display: flex;
             align-items: center;
             justify-content: center;
         }
+
         .info h3 {
             font-size: 16px;
             font-weight: 600;
         }
+
         .price {
             font-size: 16px;
             font-weight: 700;
             margin-top: 4px;
         }
-        .price-star { color: #f5b042; }
-        .price-premium { color: #e2aaff; }
+
+        .price-star {
+            color: #f5b042;
+        }
+
+        .price-premium {
+            color: #e2aaff;
+        }
+
         .badge {
             font-size: 10px;
             background: rgba(245,176,66,0.15);
+
             padding: 2px 8px;
+
             border-radius: 20px;
+
             display: inline-block;
             margin-top: 4px;
         }
+
         .buy-btn {
             background: #2a2a36;
+
             border: none;
             border-radius: 40px;
+
             padding: 8px 24px;
+
             font-weight: 700;
             font-size: 13px;
+
             color: #eee;
+
             cursor: pointer;
         }
+
         .bottom-nav {
             position: fixed;
+
             bottom: 12px;
             left: 16px;
             right: 16px;
+
             background: rgba(20,20,28,0.96);
+
             border-radius: 44px;
+
             display: flex;
             justify-content: space-between;
+
             padding: 8px 16px;
+
             border: 1px solid rgba(255,255,255,0.08);
         }
+
         .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
+
             gap: 2px;
+
             font-size: 10px;
             font-weight: 600;
+
             color: #8a8aa0;
+
             cursor: pointer;
+
             padding: 6px 10px;
+
             border-radius: 40px;
         }
+
         .nav-item.active {
             background: #2e2e3c;
             color: #f5b042;
         }
+
         .toast {
             position: fixed;
+
             bottom: 90px;
             left: 50%;
+
             transform: translateX(-50%);
+
             background: #2a2a36;
+
             padding: 8px 18px;
+
             border-radius: 40px;
+
             font-size: 13px;
+
             z-index: 1000;
+
             opacity: 0;
+
             transition: 0.2s;
+
             pointer-events: none;
         }
-        .toast.show { opacity: 1; }
 
-        /* Payment Page */
+        .toast.show {
+            opacity: 1;
+        }
+
         #payPage {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+
+            inset: 0;
+
             background: #0b0b12;
+
             z-index: 200;
+
             overflow-y: auto;
+
             display: none;
         }
-        #payPage.open { display: block; }
-        .pay-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 16px;
-            background: #12121e;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+
+        #payPage.open {
+            display: block;
         }
-        .pay-back {
-            font-size: 24px;
-            cursor: pointer;
-        }
-        .pay-hero {
-            margin: 16px;
-            background: linear-gradient(135deg, #1a1a2e, #0f3460);
-            border-radius: 24px;
-            padding: 20px;
-            text-align: center;
-        }
-        .pay-hero.premium {
-            background: linear-gradient(135deg, #1a0533, #2d1b69);
-        }
-        .ph-price {
-            font-size: 32px;
-            font-weight: 800;
-            color: #f5b042;
-            margin: 10px 0;
-        }
-        .req-card {
-            background: #12121e;
-            border-radius: 20px;
-            margin: 16px;
-            padding: 16px;
-            border: 1px solid rgba(255,255,255,0.08);
-        }
-        .req-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .copy-btn {
-            background: rgba(0,212,255,0.15);
-            border: none;
-            padding: 6px 16px;
-            border-radius: 30px;
-            color: #00d4ff;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        .steps {
-            margin: 16px;
-        }
-        .step {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 16px;
-            align-items: flex-start;
-        }
-        .step-num {
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            background: #00d4ff;
-            color: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 12px;
-        }
-        .warning {
-            background: rgba(245,158,11,0.1);
-            border: 1px solid rgba(245,158,11,0.3);
-            border-radius: 16px;
-            padding: 12px 16px;
-            margin: 16px;
-            font-size: 13px;
-        }
-        .support-card {
-            background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(236,72,153,0.1));
-            border-radius: 20px;
-            padding: 16px;
-            margin: 16px;
-            text-align: center;
-        }
-        .swipe-area {
-            position: sticky;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            margin: 10px 16px 20px;
-            background: rgba(255,255,255,0.06);
-            border-radius: 40px;
-            height: 54px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-        .swipe-text {
-            font-size: 12px;
-            letter-spacing: 1px;
-            color: rgba(255,255,255,0.6);
-        }
-    </style>
-</head>
 <body>
 
 <div id="mainApp">
@@ -291,16 +265,18 @@
             <div class="tbl-ico">⚡</div>
             <div class="tbl-name">SOFTS</div>
         </div>
+
         <div style="display: flex; gap: 8px;">
             <div class="tb-u" id="tbU">@username</div>
             <div class="tb-v" id="verifyBtn">✦ Verify</div>
         </div>
     </div>
 
-    <!-- Главная страница (домашняя) -->
+    <!-- Главная -->
     <div id="homePage">
         <div class="section-title">⭐ Звёзды</div>
         <div id="starsList"></div>
+
         <div class="section-title">💎 Премиум</div>
         <div id="premiumList"></div>
     </div>
@@ -308,354 +284,205 @@
     <!-- Рефералы -->
     <div id="refPage" style="display: none;">
         <div style="background: #12121e; border-radius: 24px; padding: 20px; margin: 20px 0; text-align: center;">
+
             <div style="font-size: 48px; margin-bottom: 10px;">👥</div>
-            <div style="font-size: 24px; font-weight: 700;">Do'stlarni taklif qiling</div>
-            <div style="margin: 15px 0; opacity: 0.7;">Havolangizdan yangi do'stingiz tashrif buyursa <strong style="color:#f5b042;">+3 000 UZS</strong> bonus olasiz va ularning har bir xarididan <strong style="color:#f5b042;">3%</strong> cashback olasiz.</div>
-            <div style="background: #1e1e2c; border-radius: 16px; padding: 12px; margin: 15px 0;">https://t.me/softsbot?start=123456</div>
-            <button class="copy-btn" onclick="toast('✅ Ссылка скопирована')">Скопировать ссылку</button>
+
+            <div style="font-size: 24px; font-weight: 700;">
+                Do'stlarni taklif qiling
+            </div>
+
+            <div style="margin: 15px 0; opacity: 0.7;">
+                Havolangizdan yangi do'stingiz tashrif buyursa
+                <strong style="color:#f5b042;">+3 000 UZS</strong>
+                bonus olasiz va ularning har bir xarididan
+                <strong style="color:#f5b042;">3%</strong>
+                cashback olasiz.
+            </div>
+
+            <div style="background: #1e1e2c; border-radius: 16px; padding: 12px; margin: 15px 0;">
+                https://t.me/softsbot?start=123456
+            </div>
+
+            <button class="copy-btn"
+                    onclick="toast('✅ Ссылка скопирована')">
+                Скопировать ссылку
+            </button>
+
             <div style="display: flex; gap: 12px; margin-top: 20px;">
+
                 <div style="flex:1; background: #1e1e2c; border-radius: 16px; padding: 12px;">
                     <div>👥</div>
                     <div style="font-size: 24px; font-weight: 800;" id="refCount">0</div>
                     <div>Приглашено</div>
                 </div>
+
                 <div style="flex:1; background: #1e1e2c; border-radius: 16px; padding: 12px;">
                     <div>🏆</div>
                     <div style="font-size: 24px; font-weight: 800;" id="refEarn">0</div>
                     <div>Заработано</div>
                 </div>
+
             </div>
         </div>
     </div>
 
     <!-- События -->
     <div id="eventsPage" style="display: none;">
+
         <div style="background: #12121e; border-radius: 24px; padding: 20px; margin: 20px 0;">
+
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-                <div style="background: rgba(245,158,11,0.15); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;">🎁</div>
-                <div><div style="font-weight: 700;">Umumiy savdo maqsadi</div><div style="font-size: 12px; opacity: 0.7;">NFT olish uchun 1 200 000 so'm</div></div>
+
+                <div style="background: rgba(245,158,11,0.15);
+                            width: 48px;
+                            height: 48px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 24px;">
+                    🎁
+                </div>
+
+                <div>
+                    <div style="font-weight: 700;">
+                        Umumiy savdo maqsadi
+                    </div>
+
+                    <div style="font-size: 12px; opacity: 0.7;">
+                        NFT olish uchun 1 200 000 so'm
+                    </div>
+                </div>
+
             </div>
-            <div style="background: rgba(255,255,255,0.08); border-radius: 10px; height: 8px; margin: 10px 0;"><div style="width: 4%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #00d4ff); border-radius: 10px;"></div></div>
-            <div style="display: flex; justify-content: space-between; font-size: 12px;"><span>55 000 so'm</span><span>1 200 000 so'm</span></div>
+
+            <div style="background: rgba(255,255,255,0.08);
+                        border-radius: 10px;
+                        height: 8px;
+                        margin: 10px 0;">
+
+                <div style="width: 4%;
+                            height: 100%;
+                            background: linear-gradient(90deg,#8b5cf6,#00d4ff);
+                            border-radius: 10px;">
+                </div>
+
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                <span>55 000 so'm</span>
+                <span>1 200 000 so'm</span>
+            </div>
+
         </div>
+
         <div class="section-title">Топ продавцов</div>
+
         <div id="topSellersList"></div>
     </div>
 
     <!-- Маркет -->
     <div id="marketPage" style="display: none;">
+
         <div class="section-title">⭐ Звёзды</div>
         <div id="marketStarsList"></div>
+
         <div class="section-title">💎 Премиум</div>
         <div id="marketPremiumList"></div>
+
     </div>
 
-    ', name: '50 Stars', price: 13000, priceStr: '13 000' },
-        { id: 's_100', name: '100 Stars', price: 24000, priceStr: '24 000' },
-        { id: 's_150', name: '150 Stars', price: 36000, priceStr: '36 000' },
-        { id: 's_250', name: '250 Stars', price: 60000, priceStr: '60 000' },
-        { id: 's_500', name: '500 Stars', price: 120000, priceStr: '120 000' },
-        { id: 's_1000', name: '1000 Stars', price: 240000, priceStr: '240 000' }
-    ];
-    const premium = [
-        { id: 'p_1m', name: 'Premium 1 oy', price: 40000, priceStr: '40 000', badge: 'kirish orqali' },
-        { id: 'p_3m', name: 'Premium 3 oy', price: 180000, priceStr: '180 000', badge: '-10%' },
-        { id: 'p_6m', name: 'Premium 6 oy', price: 225000, priceStr: '225 000', badge: '-15%' },
-        { id: 'p_12m', name: 'Premium 12 oy', price: 321000, priceStr: '321 000', badge: '-30%' }
-    ];
-    const topSellers = [
-        { name: 'Tadjibaev', amount: '88 000' },
-        { name: 'Ахмед 24/7', amount: '66 000' },
-        { name: 'Саидазиз', amount: '55 000' }
-    ];
-
-    const CARD_RAW = '5614682110762236';
-
-    function starSvg() {
-        return `<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 2L15 8.5L22 9.5L17 14.5L18.5 22L12 18.5L5.5 22L7 14.5L2 9.5L9 8.5L12 2Z" fill="#f5b042" stroke="#ffcd7e" stroke-width="0.8"/></svg>`;
-    }
-    function rocketSvg() {
-        return `<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 3C12 3 9 7 9 12C9 14 10 16 12 18C14 16 15 14 15 12C15 7 12 3 12 3Z" stroke="#e2aaff" stroke-width="1.5" fill="none"/><path d="M7 15L4 18" stroke="#e2aaff" stroke-width="1.5"/><path d="M17 15L20 18" stroke="#e2aaff" stroke-width="1.5"/></svg>`;
-    }
-
-    function renderStars(containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-        container.innerHTML = '';
-        stars.forEach(p => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <div class="card-left">
-                    <div class="icon-circle">${starSvg()}</div>
-                    <div class="info">
-                        <h3>${p.name}</h3>
-                        <div class="price price-star">${p.priceStr} UZS</div>
-                    </div>
-                </div>
-                <button class="buy-btn" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}" data-type="star">Купить</button>
-            `;
-            container.appendChild(card);
-        });
-        attachBuyEvents(containerId);
-    }
-
-    function renderPremium(containerId) {
-        const container = document.getElementById(containerId);
     <!-- Профиль -->
     <div id="profilePage" style="display: none;">
-        <div style="background: linear-gradient(135deg, #1a237e, #283593, #1565c0); border-radius: 28px; padding: 24px; text-align: center; margin: 20px 0;">
-            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #00d4ff, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 12px;">👤</div>
-            <div style="font-size: 20px; font-weight: 800;" id="profileName">—</div>
-            <div style="opacity: 0.7;" id="profileUsername">@username</div>
-            <div style="font-size: 12px; margin-top: 4px;" id="profileId">ID: —</div>
-            <div style="margin: 20px 0 10px;"><div style="font-size: 12px; opacity: 0.6;">БАЛАНС</div><div style="font-size: 32px; font-weight: 800;" id="profileBalance">0 UZS</div></div>
-            <button class="copy-btn" style="background: rgba(255,255,255,0.15); color: white;" onclick="toast('💰 Пополнение в разработке')">Пополнить</button>
+
+        <div style="background: linear-gradient(135deg,#1a237e,#283593,#1565c0);
+                    border-radius: 28px;
+                    padding: 24px;
+                    text-align: center;
+                    margin: 20px 0;">
+
+            <div style="width: 70px;
+                        height: 70px;
+                        background: linear-gradient(135deg,#00d4ff,#8b5cf6);
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 30px;
+                        margin: 0 auto 12px;">
+                👤
+            </div>
+
+            <div style="font-size: 20px; font-weight: 800;"
+                 id="profileName">
+                —
+            </div>
+
+            <div style="opacity: 0.7;"
+                 id="profileUsername">
+                @username
+            </div>
+
+            <div style="font-size: 12px; margin-top: 4px;"
+                 id="profileId">
+                ID: —
+            </div>
+
+            <div style="margin: 20px 0 10px;">
+
+                <div style="font-size: 12px; opacity: 0.6;">
+                    БАЛАНС
+                </div>
+
+                <div style="font-size: 32px;
+                            font-weight: 800;"
+                     id="profileBalance">
+                    0 UZS
+                </div>
+
+            </div>
+
+            <button class="copy-btn"
+                    style="background: rgba(255,255,255,0.15);
+                           color: white;"
+                    onclick="toast('💰 Пополнение в разработке')">
+
+                Пополнить
+
+            </button>
+
         </div>
+
         <div class="section-title">История заказов</div>
+
         <div id="ordersList"></div>
+
     </div>
 
+    <!-- Нижнее меню -->
     <div class="bottom-nav">
-        <div class="nav-item" data-page="ref">👥 Рефералы</div>
-        <div class="nav-item" data-page="events">📅 События</div>
-        <div class="nav-item active" data-page="home">🏠 Главная</div>
-        <div class="nav-item" data-page="market">🛒 Маркет</div>
-        <div class="nav-item" data-page="profile">👤 Профиль</div>
+
+        <div class="nav-item" data-page="ref">
+            👥 Рефералы
+        </div>
+
+        <div class="nav-item" data-page="events">
+            📅 События
+        </div>
+
+        <div class="nav-item active" data-page="home">
+            🏠 Главная
+        </div>
+
+        <div class="nav-item" data-page="market">
+            🛒 Маркет
+        </div>
+
+        <div class="nav-item" data-page="profile">
+            👤 Профиль
+        </div>
+
     </div>
+
 </div>
-
-<div id="payPage">
-    <div class="pay-header">
-        <span class="pay-back" onclick="closePay()">←</span>
-        <span>Оплата</span>
-        <span style="width: 24px;"></span>
-    </div>
-    <div class="pay-hero" id="payHero">
-        <div id="phIcon">⭐</div>
-        <div id="phName">50 Stars</div>
-        <div class="ph-price" id="phPrice">13 000 сум</div>
-    </div>
-    <div class="req-card">
-        <div class="req-row"><span>💳 Номер карты · UZCARD</span><button class="copy-btn" onclick="copyCard()">COPY</button></div>
-        <div class="req-row"><span>💵 Точная сумма</span><button class="copy-btn" onclick="copyAmount()">COPY</button></div>
-        <div class="req-row"><span>👤 Получатель</span><span>I. Tojiboyev</span></div>
-    </div>
-    <div class="steps">
-        <div class="step"><div class="step-num">1</div><div>Скопируйте номер карты и точную сумму</div></div>
-        <div class="step"><div class="step-num">2</div><div>Переведите деньги через банковское приложение</div></div>
-        <div class="step"><div class="step-num">3</div><div>Сделайте скриншот успешного чека</div></div>
-        <div class="step"><div class="step-num">4</div><div>Отправьте скриншот боту — подтвердим в течение 5 минут</div></div>
-    </div>
-    <div class="warning">⚠️ Переводите <strong>точную сумму</strong>. Иначе платёж не пройдёт проверку.</div>
-    <div class="support-card">
-        <div>🎧 Telegram Softs Support</div>
-        <div style="font-size: 12px; opacity: 0.7;">Техническая поддержка · Softs</div>
-        <div style="color: #10b981; font-size: 12px;">● Online</div>
-        <button class="copy-btn" style="margin-top: 12px; background: linear-gradient(135deg, #f97316, #ec4899); color: white;" onclick="openSupport()">Написать в поддержку</button>
-    </div>
-    <div class="swipe-area" id="swipeBtn">
-        <div class="swipe-text">➡️ ПРОВЕСТИ ДЛЯ ОПЛАТЫ ⬅️</div>
-    </div>
-</div>
-
-<div id="toast" class="toast"></div>
-
-<script>
-    const tg = window.Telegram?.WebApp;
-    if (tg) { tg.ready(); tg.expand(); }
-
-    let selectedProduct = null;
-    let currentPage = 'home';
-
-    const stars = [
-        { id: 's_50', name: '50 Stars', price: 13000, priceStr: '13 000' },
-        { id: 's_100', name: '100 Stars', price: 24000, priceStr: '24 000' },
-        { id: 's_150', name: '150 Stars', price: 36000, priceStr: '36 000' },
-        { id: 's_250', name: '250 Stars', price: 60000, priceStr: '60 000' },
-        { id: 's_500', name: '500 Stars', price: 120000, priceStr: '120 000' },
-        { id: 's_1000', name: '1000 Stars', price: 240000, priceStr: '240 000' }
-    ];
-    const premium = [
-        { id: 'p_1m', name: 'Premium 1 oy', price: 40000, priceStr: '40 000', badge: 'kirish orqali' },
-        { id: 'p_3m', name: 'Premium 3 oy', price: 180000, priceStr: '180 000', badge: '-10%' },
-        { id: 'p_6m', name: 'Premium 6 oy', price: 225000, priceStr: '225 000', badge: '-15%' },
-        { id: 'p_12m', name: 'Premium 12 oy', price: 321000, priceStr: '321 000', badge: '-30%' }
-    ];
-    const topSellers = [
-        { name: 'Tadjibaev', amount: '88 000' },
-        { name: 'Ахмед 24/7', amount: '66 000' },
-        { name: 'Саидазиз', amount: '55 000' }
-    ];
-
-    const CARD_RAW = '5614682110762236';
-
-    function starSvg() {
-        return `<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 2L15 8.5L22 9.5L17 14.5L18.5 22L12 18.5L5.5 22L7 14.5L2 9.5L9 8.5L12 2Z" fill="#f5b042" stroke="#ffcd7e" stroke-width="0.8"/></svg>`;
-    }
-    function rocketSvg() {
-        return `<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 3C12 3 9 7 9 12C9 14 10 16 12 18C14 16 15 14 15 12C15 7 12 3 12 3Z" stroke="#e2aaff" stroke-width="1.5" fill="none"/><path d="M7 15L4 18" stroke="#e2aaff" stroke-width="1.5"/><path d="M17 15L20 18" stroke="#e2aaff" stroke-width="1.5"/></svg>`;
-    }
-
-    function renderStars(containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-        container.innerHTML = '';
-        stars.forEach(p => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <div class="card-left">
-                    <div class="icon-circle">${starSvg()}</div>
-                    <div class="info">
-                        <h3>${p.name}</h3>
-                        <div class="price price-star">${p.priceStr} UZS</div>
-                    </div>
-                </div>
-                <button class="buy-btn" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}" data-type="star">Купить</button>
-            `;
-            container.appendChild(card);
-        });
-        attachBuyEvents(containerId);
-    }
-
-    function renderPremium(containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-        container.innerHTML = '';
-        premium.forEach(p => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <div class="card-left">
-                    <div class="icon-circle">${rocketSvg()}</div>
-                    <div class="info">
-                        <h3>${p.name}</h3>
-                        <div class="price price-premium">${p.priceStr} UZS</div>
-                        ${p.badge ? `<div class="badge">${p.badge}</div>` : ''}
-                    </div>
-                </div>
-                <button class="buy-btn" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}" data-type="premium">Купить</button>
-            `;
-            container.appendChild(card);
-        });
-        attachBuyEvents(containerId);
-    }
-
-    function attachBuyEvents(containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-        container.querySelectorAll('.buy-btn').forEach(btn => {
-            btn.removeEventListener('click', btn._handler);
-            const handler = () => {
-                selectedProduct = {
-                    id: btn.dataset.id,
-                    name: btn.dataset.name,
-                    price: parseInt(btn.dataset.price),
-                    type: btn.dataset.type,
-                    priceStr: btn.dataset.price + ' сум'
-                };
-                document.getElementById('phIcon').innerHTML = btn.dataset.type === 'star' ? '⭐' : '💎';
-                document.getElementById('phName').innerText = selectedProduct.name;
-                document.getElementById('phPrice').innerText = selectedProduct.price + ' сум';
-                document.getElementById('payHero').className = 'pay-hero ' + (btn.dataset.type === 'premium' ? 'premium' : '');
-                document.getElementById('payPage').classList.add('open');
-            };
-            btn._handler = handler;
-            btn.addEventListener('click', handler);
-        });
-    }
-
-    function renderTopSellers() {
-        const container = document.getElementById('topSellersList');
-        if (!container) return;
-        container.innerHTML = '';
-        topSellers.forEach((seller, idx) => {
-            const div = document.createElement('div');
-            div.className = 'card';
-            div.innerHTML = `<div class="card-left"><span style="font-size: 20px;">${idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'}</span><div><strong>${seller.name}</strong></div></div><div style="color: #f5b042;">${seller.amount} so'm</div>`;
-            container.appendChild(div);
-        });
-    }
-
-    function renderOrders() {
-        const container = document.getElementById('ordersList');
-        if (!container) return;
-        container.innerHTML = '<div style="text-align: center; opacity: 0.6;">У вас пока нет заказов</div>';
-    }
-
-    function navigateTo(page) {
-        document.getElementById('homePage').style.display = page === 'home' ? 'block' : 'none';
-        document.getElementById('refPage').style.display = page === 'ref' ? 'block' : 'none';
-        document.getElementById('eventsPage').style.display = page === 'events' ? 'block' : 'none';
-        document.getElementById('marketPage').style.display = page === 'market' ? 'block' : 'none';
-        document.getElementById('profilePage').style.display = page === 'profile' ? 'block' : 'none';
-        currentPage = page;
-    }
-
-    function closePay() {
-        document.getElementById('payPage').classList.remove('open');
-        selectedProduct = null;
-    }
-
-    function copyCard() { navigator.clipboard.writeText(CARD_RAW); toast('✅ Карта скопирована'); }
-    function copyAmount() { if (selectedProduct) { navigator.clipboard.writeText(selectedProduct.price.toString()); toast('✅ Сумма скопирована'); } }
-    function openSupport() { if (tg?.openTelegramLink) tg.openTelegramLink('https://t.me/Tadjibaev_i'); else window.open('https://t.me/Tadjibaev_i', '_blank'); }
-    function toast(msg) { const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2500); }
-
-    async function sendOrder() {
-        if (!selectedProduct) return;
-        const uid = tg?.initDataUnsafe?.user?.id;
-        if (!uid) { toast('❌ Ошибка: пользователь не определён'); return; }
-        toast('⏳ Отправка заказа...');
-        try {
-            const res = await fetch('/api/order', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: uid, product_id: selectedProduct.id, product_name: selectedProduct.name, price: selectedProduct.price, type: selectedProduct.type })
-            });
-            if (res.ok) { toast('✅ Заказ отправлен!'); setTimeout(() => { closePay(); if (tg?.close) tg.close(); }, 1500); }
-            else { toast('❌ Ошибка при оформлении'); }
-        } catch(e) { toast('❌ Ошибка сети'); }
-    }
-
-    document.getElementById('swipeBtn').addEventListener('click', () => sendOrder());
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const page = item.dataset.page;
-            navigateTo(page);
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            item.classList.add('active');
-        });
-    });
-
-    // Загружаем данные пользователя
-    async function loadUserData() {
-        const uid = tg?.initDataUnsafe?.user?.id;
-        if (!uid) return;
-        try {
-            const res = await fetch(`/api/user/${uid}`);
-            if (res.ok) {
-                const user = await res.json();
-                document.getElementById('tbU').innerText = user.username ? '@' + user.username : user.first_name;
-                document.getElementById('profileName').innerText = user.first_name || '—';
-                document.getElementById('profileUsername').innerText = user.username ? '@' + user.username : '—';
-                document.getElementById('profileId').innerText = 'ID: ' + user.id;
-                document.getElementById('profileBalance').innerText = user.balance.toLocaleString() + ' UZS';
-                document.getElementById('refCount').innerText = user.refs || 0;
-                document.getElementById('refEarn').innerText = (user.earned || 0).toLocaleString() + ' so\'m';
-            }
-        } catch(e) { console.error(e); }
-    }
-
-    renderStars('starsList');
-    renderPremium('premiumList');
-    renderStars('marketStarsList');
-    renderPremium('marketPremiumList');
-    renderTopSellers();
-    renderOrders();
-    loadUserData();
-    navigateTo('home');
-</script>
-</body>
-</html> 
+        
