@@ -1,0 +1,244 @@
+/* =========================================================================
+   LISTS / TABS / FORMS — общие паттерны для Users, Groups, Logs, Admins
+   ========================================================================= */
+
+/* --- List rows --- */
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  transition: background var(--dur-fast) var(--ease-standard);
+  cursor: pointer;
+}
+
+.list-row:hover {
+  background: var(--glass-02);
+}
+
+.list-row + .list-row {
+  border-top: 1px solid var(--color-border);
+}
+
+.list-row__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--glass-03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.list-row__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.list-row__title {
+  font-weight: 600;
+  font-size: var(--fs-base);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.list-row__subtitle {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  margin-top: 2px;
+}
+
+.list-row__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* --- Tabs --- */
+
+.tabs {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  margin-bottom: var(--space-4);
+}
+
+.tabs button {
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all var(--dur-fast) var(--ease-standard);
+}
+
+.tabs button.is-active {
+  background: var(--color-accent);
+  color: var(--text-on-accent);
+}
+
+/* --- Toolbar (search + filters + actions) --- */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.toolbar .input {
+  flex: 1;
+  min-width: 180px;
+}
+
+.toolbar select.input {
+  flex: none;
+  width: auto;
+}
+
+/* --- Pagination --- */
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-5);
+}
+
+/* --- Forms inside modals --- */
+
+.form-grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.form-actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.form-actions .btn {
+  flex: 1;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+}
+
+.settings-row + .settings-row {
+  border-top: 1px solid var(--color-border);
+}
+
+.settings-row__label {
+  font-size: var(--fs-base);
+  font-weight: 500;
+}
+
+.settings-row__hint {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.settings-row .input {
+  width: 100px;
+  text-align: center;
+}
+
+.modal__close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  background: var(--glass-02);
+  transition: background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
+}
+
+.modal__close:hover {
+  background: var(--glass-03);
+  color: var(--text-primary);
+}
+
+.file-drop {
+  border: 1.5px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-standard), background var(--dur-fast) var(--ease-standard);
+}
+
+.file-drop:hover,
+.file-drop.is-dragover {
+  border-color: rgba(var(--color-accent-rgb), 0.5);
+  background: var(--color-accent-softer);
+}
+
+.file-drop__preview {
+  margin-top: var(--space-3);
+  max-width: 100%;
+  max-height: 160px;
+  border-radius: var(--radius-sm);
+}
+
+.button-row-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.button-row-editor__item {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.button-row-editor__item .input {
+  flex: 1;
+}
+
+.progress-bar {
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--glass-03);
+  overflow: hidden;
+}
+
+.progress-bar__fill {
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: var(--radius-pill);
+  transition: width var(--dur-base) var(--ease-standard);
+}

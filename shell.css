@@ -1,0 +1,228 @@
+/* =========================================================================
+   APP SHELL — sidebar с "жидким" pill-индикатором (signature-элемент)
+   ========================================================================= */
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+  z-index: 1;
+}
+
+/* --- Sidebar --- */
+
+.sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  margin: var(--space-4);
+  padding: var(--space-4) var(--space-2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  position: sticky;
+  top: var(--space-4);
+  height: calc(100vh - var(--space-4) * 2);
+  height: calc(100dvh - var(--space-4) * 2);
+}
+
+.sidebar__brand {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-4);
+  flex-shrink: 0;
+}
+
+.sidebar__brand svg { width: 20px; height: 20px; }
+
+.sidebar__nav {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+/* Жидкий индикатор: один элемент, который плавно "перетекает" (translateY +
+   изменение высоты) к активному пункту меню — вместо мгновенного скачка. */
+.sidebar__liquid {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-soft);
+  border: 1px solid rgba(var(--color-accent-rgb), 0.2);
+  box-shadow: 0 4px 20px rgba(var(--color-accent-rgb), 0.12);
+  transition:
+    transform var(--dur-liquid) var(--ease-liquid),
+    height var(--dur-liquid) var(--ease-liquid);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.sidebar__item {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  transition: color var(--dur-base) var(--ease-standard), transform var(--dur-instant) var(--ease-spring);
+}
+
+.sidebar__item svg {
+  width: 21px;
+  height: 21px;
+  transition: transform var(--dur-base) var(--ease-spring);
+}
+
+.sidebar__item span {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.sidebar__item:hover {
+  color: var(--text-primary);
+}
+
+.sidebar__item:active {
+  transform: scale(0.94);
+}
+
+.sidebar__item.is-active {
+  color: var(--color-accent);
+}
+
+.sidebar__item.is-active svg {
+  transform: translateY(-1px) scale(1.04);
+}
+
+.sidebar__spacer {
+  flex: 1;
+}
+
+.sidebar__logout {
+  width: 100%;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--text-tertiary);
+  transition: color var(--dur-fast) var(--ease-standard), background var(--dur-fast) var(--ease-standard);
+}
+
+.sidebar__logout:hover {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+/* --- Main content --- */
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-4) var(--space-5) var(--space-8);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-2);
+  margin-bottom: var(--space-5);
+}
+
+.topbar__title {
+  font-size: var(--fs-xl);
+}
+
+.topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.lang-switch {
+  display: flex;
+  padding: 3px;
+  gap: 2px;
+}
+
+.lang-switch button {
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition: all var(--dur-fast) var(--ease-standard);
+}
+
+.lang-switch button.is-active {
+  background: var(--color-accent);
+  color: var(--text-on-accent);
+}
+
+.view {
+  animation: view-in var(--dur-slow) var(--ease-liquid) forwards;
+}
+
+@keyframes view-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Responsive: sidebar -> bottom tab bar on mobile --- */
+
+@media (max-width: 760px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    height: auto;
+    width: auto;
+    margin: var(--space-3);
+    flex-direction: row;
+    padding: var(--space-2);
+    z-index: 100;
+    padding-bottom: max(var(--space-2), env(safe-area-inset-bottom));
+  }
+
+  .sidebar__brand { display: none; }
+  .sidebar__nav { flex-direction: row; }
+  .sidebar__spacer { display: none; }
+  .sidebar__logout { width: 48px; }
+
+  .sidebar__liquid {
+    top: 0;
+    height: 100% !important;
+    width: var(--tab-w, 52px);
+    transition:
+      transform var(--dur-liquid) var(--ease-liquid),
+      width var(--dur-liquid) var(--ease-liquid);
+  }
+
+  .app-main {
+    padding-bottom: 96px;
+  }
+}

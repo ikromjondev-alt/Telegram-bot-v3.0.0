@@ -1,0 +1,115 @@
+/* =========================================================================
+   DESIGN TOKENS — Apple iOS 26 "Liquid Glass"
+   Палитра зафиксирована техническим заданием: чёрный фон, неоново-зелёный
+   акцент. Всё остальное (поверхности, тени, motion) выведено из этих двух
+   констант так, чтобы стекло выглядело настоящим, а не плоским оверлеем.
+   ========================================================================= */
+
+:root {
+  /* --- Базовая палитра (из ТЗ) --- */
+  --color-bg: #000000;
+  --color-accent: #00ff66;
+  --color-accent-hover: #00d65a;
+  --color-border: rgba(255, 255, 255, 0.08);
+
+  /* --- Акцент: производные состояния --- */
+  --color-accent-rgb: 0, 255, 102;
+  --color-accent-soft: rgba(0, 255, 102, 0.14);
+  --color-accent-softer: rgba(0, 255, 102, 0.07);
+  --color-accent-glow: rgba(0, 255, 102, 0.35);
+
+  /* --- Семантические статусы (нейтральная система iOS) --- */
+  --color-danger: #ff453a;
+  --color-danger-soft: rgba(255, 69, 58, 0.14);
+  --color-warning: #ffd60a;
+  --color-warning-soft: rgba(255, 214, 10, 0.14);
+  --color-info: #0a84ff;
+  --color-info-soft: rgba(10, 132, 255, 0.14);
+
+  /* --- Текст --- */
+  --text-primary: rgba(255, 255, 255, 0.94);
+  --text-secondary: rgba(255, 255, 255, 0.56);
+  --text-tertiary: rgba(255, 255, 255, 0.34);
+  --text-on-accent: #001a0a;
+
+  /* --- Стеклянные поверхности: чем "выше" элемент, тем плотнее стекло --- */
+  --glass-01: rgba(255, 255, 255, 0.035);
+  --glass-02: rgba(255, 255, 255, 0.055);
+  --glass-03: rgba(255, 255, 255, 0.08);
+  --glass-blur: 32px;
+  --glass-blur-heavy: 48px;
+  --glass-saturate: 180%;
+
+  /* Тонкий верхний блик — то, что отличает настоящее стекло от блюра */
+  --glass-specular: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.10) 0%,
+    rgba(255, 255, 255, 0.02) 14%,
+    rgba(255, 255, 255, 0) 40%
+  );
+
+  /* --- Тени: очень мягкие, per ТЗ --- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.24), 0 2px 8px rgba(0, 0, 0, 0.18);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.32), 0 1px 3px rgba(0, 0, 0, 0.24);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.42), 0 2px 8px rgba(0, 0, 0, 0.28);
+  --shadow-accent: 0 8px 28px rgba(var(--color-accent-rgb), 0.16);
+
+  /* --- Радиусы: iOS 26 continuous corners ощущение --- */
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
+  --radius-xl: 34px;
+  --radius-pill: 999px;
+
+  /* --- Типографика: нативный системный стек = настоящий Apple, не имитация --- */
+  --font-display:
+    -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+    "Segoe UI", Roboto, sans-serif;
+  --font-body:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  --font-mono:
+    "SF Mono", ui-monospace, "Menlo", "Cascadia Code", monospace;
+
+  --fs-2xs: 0.6875rem;
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.8125rem;
+  --fs-base: 0.9375rem;
+  --fs-md: 1.0625rem;
+  --fs-lg: 1.25rem;
+  --fs-xl: 1.625rem;
+  --fs-2xl: 2.125rem;
+
+  /* --- Motion: единая кривая "жидкости" --- */
+  --ease-liquid: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --dur-instant: 120ms;
+  --dur-fast: 220ms;
+  --dur-base: 380ms;
+  --dur-slow: 560ms;
+  --dur-liquid: 720ms;
+
+  /* --- Сетка --- */
+  --sidebar-width: 84px;
+  --sidebar-width-expanded: 248px;
+  --content-max-width: 1180px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-instant: 1ms;
+    --dur-fast: 1ms;
+    --dur-base: 1ms;
+    --dur-slow: 1ms;
+    --dur-liquid: 1ms;
+  }
+}

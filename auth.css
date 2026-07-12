@@ -1,0 +1,138 @@
+/* =========================================================================
+   AUTH SCREEN
+   ========================================================================= */
+
+.auth-screen {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+  position: relative;
+  z-index: 1;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  padding: var(--space-7) var(--space-6) var(--space-6);
+  text-align: center;
+}
+
+.auth-mark {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-accent-soft);
+  border: 1px solid rgba(var(--color-accent-rgb), 0.24);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-mark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--glass-specular);
+}
+
+.auth-mark svg {
+  width: 30px;
+  height: 30px;
+  position: relative;
+  z-index: 1;
+}
+
+.auth-title {
+  font-size: var(--fs-xl);
+  margin-bottom: var(--space-2);
+}
+
+.auth-subtitle {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
+  line-height: 1.5;
+}
+
+.auth-steps {
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.auth-step[hidden] {
+  display: none;
+}
+
+.auth-step-enter {
+  animation: auth-step-in var(--dur-slow) var(--ease-liquid) forwards;
+}
+
+@keyframes auth-step-in {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.auth-code-hint {
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+}
+
+.auth-timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.auth-timer__ring {
+  width: 16px;
+  height: 16px;
+  transform: rotate(-90deg);
+}
+
+.auth-timer__ring circle {
+  fill: none;
+  stroke-width: 2;
+}
+
+.auth-timer__ring .track {
+  stroke: var(--glass-03);
+}
+
+.auth-timer__ring .progress {
+  stroke: var(--color-accent);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear;
+}
+
+.auth-error {
+  font-size: var(--fs-xs);
+  color: var(--color-danger);
+  min-height: 1.2em;
+}
+
+.auth-back {
+  align-self: center;
+}
+
+.auth-footer {
+  margin-top: var(--space-6);
+  font-size: var(--fs-2xs);
+  color: var(--text-tertiary);
+}
